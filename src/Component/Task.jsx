@@ -1,6 +1,5 @@
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React from "react";
-import { FaEdit } from "react-icons/fa";
-import { MdDeleteForever } from "react-icons/md";
 
 const Task = ({ title, description, onDelete, onEdit }) => {
   return (
@@ -11,10 +10,11 @@ const Task = ({ title, description, onDelete, onEdit }) => {
       </div>
       <div className="task-buttons">
         <button onClick={onEdit}>
-          <FaEdit id="edit-icon" />
+          <EditOutlined />
         </button>
+        <br />
         <button onClick={onDelete}>
-          <MdDeleteForever id="delete-icon" />
+          <DeleteOutlined />
         </button>
       </div>
     </div>

@@ -2,6 +2,9 @@ import React, { useRef, useState } from "react";
 import Task from "./Task";
 import Modal from "./Modal";
 
+import { Button, Form, Input } from "antd";
+const { TextArea } = Input;
+
 export const Home = () => {
   const modal = useRef();
   const [tasks, setTasks] = useState([]);
@@ -12,6 +15,32 @@ export const Home = () => {
   const [description, setDescription] = useState("");
 
   const [editIndex, setEditIndex] = useState(null);
+
+  const [form] = Form.useForm();
+  const [formLayout, setFormLayout] = useState("horizontal");
+  const onFormLayoutChange = ({ layout }) => {
+    setFormLayout(layout);
+  };
+  const formItemLayout =
+    formLayout === "horizontal"
+      ? {
+          labelCol: {
+            span: 4,
+          },
+          wrapperCol: {
+            span: 14,
+          },
+        }
+      : null;
+  const buttonItemLayout =
+    formLayout === "horizontal"
+      ? {
+          wrapperCol: {
+            span: 14,
+            offset: 4,
+          },
+        }
+      : null;
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -67,24 +96,46 @@ export const Home = () => {
       </Modal>
 
       <div className="container">
-        <form onSubmit={submitHandler}>
-          <h1>Daily Task</h1>
-          <input
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <textarea
-            placeholder="Description"
-            rows="7"
-            cols="50"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          ></textarea>
+        <h1>Daily Task</h1>
+        <Form
+          {...formItemLayout}
+          layout={formLayout}
+          form={form}
+          initialValues={{
+            layout: formLayout,
+          }}
+          onValuesChange={onFormLayoutChange}
+          style={{
+            maxWidth: formLayout === "inline" ? "none" : 600,
+          }}
+        >
+          <Form.Item label="Title">
+            <Input
+              placeholder="Enter title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item label="Description">
+            <TextArea
+              showCount
+              maxLength={100}
+              placeholder="Enter description"
+              style={{
+                height: 120,
+                resize: "none",
+              }}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item {...buttonItemLayout}>
+            <Button type="primary" onClick={submitHandler}>
+              Add
+            </Button>
+          </Form.Item>
+        </Form>
 
-          <button type="submit">{editIndex !== null ? "Edit" : "Add"}</button>
-        </form>
         {tasks.map((item, index) => (
           <Task
             key={index}
