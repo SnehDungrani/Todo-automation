@@ -1,151 +1,186 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
+import { Button, Form, Input, Modal, notification } from "antd";
+// import Modal from "./Modal";
 import Task from "./Task";
-import Modal from "./Modal";
 
-import { Button, Form, Input } from "antd";
 const { TextArea } = Input;
 
 export const Home = () => {
-  const modal = useRef();
   const [tasks, setTasks] = useState([]);
 
-  const [id, setId] = useState(undefined);
+  // const [title, setTitle] = useState("");
+  const [defaultData, setDefaultDataSet] = useState(null);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  // const [description, setDescription] = useState("");
+  // const [editIndex, setEditIndex] = useState(null);
 
-  const [editIndex, setEditIndex] = useState(null);
+  // const [show, setShow] = useState(false);
+  const [modal2Open, setModal2Open] = useState(false);
+  // const [isEditItem, setIsEditItem] = useState();
 
   const [form] = Form.useForm();
-  const [formLayout, setFormLayout] = useState("horizontal");
-  const onFormLayoutChange = ({ layout }) => {
-    setFormLayout(layout);
-  };
-  const formItemLayout =
-    formLayout === "horizontal"
-      ? {
-          labelCol: {
-            span: 4,
-          },
-          wrapperCol: {
-            span: 14,
-          },
-        }
-      : null;
-  const buttonItemLayout =
-    formLayout === "horizontal"
-      ? {
-          wrapperCol: {
-            span: 14,
-            offset: 4,
-          },
-        }
-      : null;
 
   const submitHandler = (e) => {
+    let id = new Date().getTime().toString();
     e.preventDefault();
 
-    if (title.trim() === "" || description.trim() === "") {
-      modal.current.open();
-      return;
-    }
+    // if (title.trim() === "" || description.trim() === "") {
+    //   notification.error({
+    //     message: "Please add some task",
+    //     duration: 1,
+    //   });
+    //   return;
+    // }
 
-    if (editIndex !== null) {
-      const updatedTasks = [...tasks];
+    form
+      .validateFields()
+      .then((value) => {
+        console.log(value);
 
-      updatedTasks[editIndex] = { title, description, id };
-      setTasks(updatedTasks);
-      setEditIndex(null);
-    } else {
-      const newTask = { title, description, id };
-      setTasks([...tasks, newTask]);
-    }
+        if (value !== null) {
+          const valueWithId = { id, ...value };
+          setTasks((prev) => [...prev, valueWithId]);
+        }
 
-    setTitle("");
-    setDescription("");
-    setId(undefined);
+        notification.success({
+          message: "SUCCESS",
+          description: "Task Added successfully",
+          duration: 1,
+        });
+        setModal2Open((pr) => !pr);
+        form.resetFields();
+      })
+      .catch((err) => console.log(err));
+    // if (editIndex !== null) {
+    //   const updatedTasks = [...tasks];
+
+    //   updatedTasks[editIndex] = { title, description, id };
+    //   setTasks(updatedTasks);
+    //   setEditIndex(null);
+    // } else {
+    //   setIsEdit("Add");
+
+    //   // const newTask = { title, description, id };
+    //   // setTasks([...tasks, newTask]);
+
+    //   // console.log(newTask);
+    // }
+
+    // setTitle("");
+    // setDescription("");
+    // setId(undefined);
   };
 
-  const editTask = (id) => {
-    const taskToEdit = tasks[id];
-    setTitle(taskToEdit.title);
-    setDescription(taskToEdit.description);
-    setEditIndex(id);
+  console.log(tasks);
 
-    console.log(id);
+  const editTask = (index) => {
+    setModal2Open((pr) => !pr);
+    console.log(index);
+    const taskToEdit = tasks[index];
+    form.setFieldsValue(taskToEdit);
+    setDefaultDataSet(taskToEdit);
+
+    // setIsEditItem(taskToEdit.id);
+
+    // setTitle(taskToEdit.title);
+    // setDescription(taskToEdit.description);
+    // setEditIndex(index);
   };
 
   const deleteTask = (id) => {
     const updatedTasks = tasks.filter((_, i) => i !== id);
     setTasks(updatedTasks);
-    setEditIndex(null);
+    // setEditIndex(null);
+    notification.error({
+      message: "DELETE",
+      description: "Task Deleted successfully",
+      duration: 1,
+    });
   };
+
+  console.log(defaultData);
 
   return (
     <>
-      <Modal ref={modal} buttonCaption="Okay">
-        <h2 className="invalid-input">Invalid Input</h2>
-        <br />
-        <p className="first-p">
-          Oops.. looks like you forget to enter a value.
-        </p>
-        <p className="second-p">
-          Please make sure you provide a valid value for every input field.
-        </p>
-        <br />
-      </Modal>
-
-      <div className="container">
+      <div className="container ">
         <h1>Daily Task</h1>
-        <Form
-          {...formItemLayout}
-          layout={formLayout}
-          form={form}
-          initialValues={{
-            layout: formLayout,
-          }}
-          onValuesChange={onFormLayoutChange}
+        <div
+          className="btn-main"
           style={{
-            maxWidth: formLayout === "inline" ? "none" : 600,
+            width: "100%",
           }}
         >
-          <Form.Item label="Title">
-            <Input
-              placeholder="Enter title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item label="Description">
-            <TextArea
-              showCount
-              maxLength={100}
-              placeholder="Enter description"
-              style={{
-                height: 120,
-                resize: "none",
-              }}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item {...buttonItemLayout}>
-            <Button type="primary" onClick={submitHandler}>
-              Add
-            </Button>
-          </Form.Item>
-        </Form>
-
-        {tasks.map((item, index) => (
-          <Task
-            key={index}
-            id={`todo-${index}`}
-            title={item.title}
-            description={item.description}
-            onDelete={() => deleteTask(index)}
-            onEdit={() => editTask(index)}
-          />
-        ))}
+          <Button
+            type="dashed"
+            block
+            onClick={() => setModal2Open(true)}
+            style={{ borderColor: "#8458B3" }}
+          >
+            + Add New Task
+          </Button>
+        </div>
+        <Modal
+          title="Add your task"
+          centered
+          open={modal2Open}
+          okText={defaultData !== null ? "edit" : "add"}
+          onOk={submitHandler}
+          onCancel={() => {
+            setModal2Open(false);
+            setDefaultDataSet(null);
+          }}
+          okButtonProps={{ style: { backgroundColor: "#8458B3" } }}
+        >
+          <Form layout={"vertical"} form={form}>
+            <Form.Item
+              label="Title"
+              name="title"
+              id="title"
+              required={true}
+              rules={[
+                {
+                  required: true,
+                  message: `Please Enter valid Title`,
+                },
+              ]}
+            >
+              <Input
+                placeholder="Enter title"
+                required={true}
+                // value={title}
+                // onChange={(e) => setTitle(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Description"
+              name="description"
+              id="description"
+              rules={[
+                {
+                  required: true,
+                  message: `Please Enter valid Description`,
+                },
+              ]}
+            >
+              <TextArea
+                showCount
+                maxLength={100}
+                required={true}
+                placeholder="Enter description"
+                style={{
+                  height: 120,
+                  resize: "none",
+                }}
+                // value={description}
+                // onChange={(e) => setDescription(e.target.value)}
+              />
+            </Form.Item>
+            <br />
+          </Form>
+        </Modal>
+        <br />
+        <br />
+        <Task tasks={tasks} onDelete={deleteTask} onEdit={editTask} />
       </div>
     </>
   );

@@ -1,12 +1,14 @@
 import "./App.css";
-import Header from "./Component/Header";
+import HeaderAnt from "./Component/Header";
 import { Home } from "./Component/Home";
 
 function App() {
-  return <div>
-    <Header/>
-    <Home/>
-  </div>;
+  return (
+    <div>
+      <HeaderAnt />
+      <Home />
+    </div>
+  );
 }
 
 export default App;
