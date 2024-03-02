@@ -22,6 +22,8 @@ export const Home = () => {
           const id = new Date().getTime().toString();
           const valueWithId = { id, ...value };
 
+          console.log(defaultData);
+
           if (defaultData !== null) {
             const updatedTask = tasks.map((task) =>
               task.id === defaultData.id ? valueWithId : task
@@ -29,7 +31,7 @@ export const Home = () => {
             setTasks(updatedTask);
 
             notification.success({
-              message: "SUCCESS",
+              message: "Edit",
               description: "Task Edit successfully",
               duration: 1,
             });
@@ -61,10 +63,10 @@ export const Home = () => {
     setDefaultDataSet(taskToEdit);
   };
 
-  const deleteTask = (id) => {
-    const updatedTasks = tasks.filter((_, i) => i !== id);
+  const deleteTask = (index) => {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
     setTasks(updatedTasks);
-    notification.error({
+    notification.success({
       message: "DELETE",
       description: "Task Deleted successfully",
       duration: 1,
