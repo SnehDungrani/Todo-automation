@@ -99,6 +99,10 @@ export const Home = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
+    notification.success({
+      message: "Logout Successfully",
+      duration: 1,
+    });
     navigate("/login");
   };
 

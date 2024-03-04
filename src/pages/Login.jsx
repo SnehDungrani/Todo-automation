@@ -1,5 +1,5 @@
 // import React, { useState } from "react";
-import { Button, Card, Input, Form } from "antd";
+import { Button, Card, Input, Form, notification, message } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
@@ -28,6 +28,12 @@ const Login = () => {
           const user = userCredential.user;
           localStorage.setItem("token", user.accessToken);
           localStorage.setItem("user", JSON.stringify(user));
+
+          notification.success({
+            message: "Login Successfully",
+            duration: 1,
+          });
+
           navigate("/home");
         } catch (err) {
           console.error(err);
