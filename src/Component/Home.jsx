@@ -1,6 +1,25 @@
 import React, { useState } from "react";
-import { Button, Form, Input, Modal, notification } from "antd";
+import { Button, Form, Input, Layout, Modal, notification } from "antd";
 import Task from "./Task";
+import { Header } from "antd/es/layout/layout";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
+import { AiOutlineLogout } from "react-icons/ai";
+
+const headerStyle = {
+  textAlign: "right",
+  color: "#fff",
+  height: 64,
+  paddingInline: 48,
+  lineHeight: "64px",
+  backgroundColor: "#8458b3",
+};
+const layoutStyle = {
+  overflow: "hidden",
+  width: "calc(100%)",
+  maxWidth: "calc(100%)",
+};
 
 const { TextArea } = Input;
 
@@ -11,6 +30,8 @@ export const Home = () => {
   const [modal2Open, setModal2Open] = useState(false);
 
   const [form] = Form.useForm();
+
+  const navigate = useNavigate();
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -73,10 +94,25 @@ export const Home = () => {
     });
   };
 
+  const handleLogout = async () => {
+    await signOut(auth);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login");
+  };
+
   console.log(defaultData);
 
   return (
     <>
+      <Layout style={layoutStyle}>
+        <Header style={headerStyle}>
+          <Button onClick={handleLogout}>
+            <AiOutlineLogout />
+          </Button>
+        </Header>
+      </Layout>
       <div className="container ">
         <h1>Daily Task</h1>
         <div
