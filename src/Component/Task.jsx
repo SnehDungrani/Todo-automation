@@ -1,11 +1,19 @@
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React from "react";
-import { Avatar, List, Popconfirm } from "antd";
+import { Avatar, Button, List, Popconfirm } from "antd";
 
 const Task = ({ tasks, title, description, onDelete, onEdit }) => {
   return (
     <>
+      <menu id="tabs">
+        <li>
+          <Button>Current Todos</Button>
+        </li>
+        <li>
+          <Button>Daily Todos</Button>
+        </li>
+      </menu>
       <List itemLayout="horizontal" dataSource={(title, description)}>
         {tasks.map((item, index) => (
           <List.Item key={index}>
@@ -27,6 +35,7 @@ const Task = ({ tasks, title, description, onDelete, onEdit }) => {
                 </>
               }
             />
+
             <EditOutlined
               style={{ color: "#8458B3", fontSize: "25px", width: "1.5em" }}
               onClick={() => onEdit(item)}
@@ -44,10 +53,7 @@ const Task = ({ tasks, title, description, onDelete, onEdit }) => {
               }
               onConfirm={() => onDelete(item)}
             >
-              <DeleteOutlined
-                style={{ color: "#FF0000", fontSize: "25px" }}
-                // onClick={() => onDelete(item)}
-              />
+              <DeleteOutlined style={{ color: "#FF0000", fontSize: "25px" }} />
             </Popconfirm>
           </List.Item>
         ))}
