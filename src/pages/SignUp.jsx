@@ -1,13 +1,15 @@
 // import React, { useState } from "react";
-import { Button, Card, Input, Form, Checkbox, notification } from "antd";
+import { Button, Card, Input, Form, Checkbox, notification, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { useState } from "react";
 
 const SignUp = () => {
   const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState();
 
   const navigate = useNavigate();
 
@@ -18,6 +20,7 @@ const SignUp = () => {
       .validateFields()
       .then(async (value) => {
         console.log(value);
+        setIsLoading(true);
 
         try {
           const userCredential = await createUserWithEmailAndPassword(
@@ -36,9 +39,11 @@ const SignUp = () => {
             message: "signup Successfully",
             duration: 1,
           });
+
           navigate("/login");
         } catch (err) {
           console.error(err);
+          setIsLoading(false);
         }
       })
       .catch((err) => {
@@ -187,18 +192,22 @@ const SignUp = () => {
               >
                 <Checkbox>I have read the agreement</Checkbox>
               </Form.Item>
-              <Button
-                type="primary"
-                shape="round"
-                icon={<LoginOutlined />}
-                style={{ width: "10vw" }}
-                onClick={loginHandler}
-                htmlType="submit"
-              >
-                Sign up
-              </Button>
+              {isLoading ? (
+                <Spin />
+              ) : (
+                <Button
+                  type="primary"
+                  shape="round"
+                  icon={<LoginOutlined />}
+                  style={{ width: "10vw" }}
+                  onClick={loginHandler}
+                  htmlType="submit"
+                >
+                  SignUp
+                </Button>
+              )}
               <br />
-              or
+              Have an account?
               <br />
               <br />
               <Button

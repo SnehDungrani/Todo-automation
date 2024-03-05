@@ -1,21 +1,43 @@
 // import React, { useState } from "react";
-import { Button, Card, Input, Form, notification, message } from "antd";
+import { Button, Card, Input, Form, notification, Spin, Modal } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useState } from "react";
 
 const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [modal, contextHolder] = Modal.useModal();
+
+  const countDown = () => {
+    let secondsToGo = 5;
+    const instance = modal.success({
+      title: "This is a notification message",
+      content: `This modal will be destroyed after ${secondsToGo} second.`,
+    });
+    const timer = setInterval(() => {
+      secondsToGo -= 1;
+      instance.update({
+        content: `This modal will be destroyed after ${secondsToGo} second.`,
+      });
+    }, 1000);
+    setTimeout(() => {
+      clearInterval(timer);
+      instance.destroy();
+    }, secondsToGo * 1000);
+  };
 
   const loginHandler = () => {
     form
       .validateFields()
       .then(async (value) => {
         console.log(value);
-
+        setIsLoading(true);
         try {
           const userCredential = await signInWithEmailAndPassword(
             auth,
@@ -33,10 +55,13 @@ const Login = () => {
             message: "Login Successfully",
             duration: 1,
           });
+          setIsLoading(false);
 
           navigate("/home");
         } catch (err) {
           console.error(err);
+          setIsLoading(false);
+          countDown();
         }
       })
 
@@ -64,6 +89,8 @@ const Login = () => {
         >
           <h1 style={{ textAlign: "center" }}>Login</h1>
           <br />
+
+          {contextHolder}
           <Form form={form}>
             <div
               style={{
@@ -129,18 +156,22 @@ const Login = () => {
                 />
               </Form.Item>
               <br />
-              <Button
-                type="primary"
-                shape="round"
-                icon={<LoginOutlined />}
-                style={{ width: "10vw" }}
-                onClick={loginHandler}
-                htmlType="submit"
-              >
-                Login
-              </Button>
+              {isLoading ? (
+                <Spin />
+              ) : (
+                <Button
+                  type="primary"
+                  shape="round"
+                  icon={<LoginOutlined />}
+                  style={{ width: "10vw" }}
+                  onClick={loginHandler}
+                  htmlType="submit"
+                >
+                  Login
+                </Button>
+              )}
               <br />
-              or
+              Don't have an account?
               <br />
               <br />
               <Button

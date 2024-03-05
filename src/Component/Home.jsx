@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Layout, Modal, notification } from "antd";
 import Task from "./Task";
 import { Header } from "antd/es/layout/layout";
@@ -6,6 +6,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineLogout } from "react-icons/ai";
+import { database } from "../firebase";
+import { uid } from "uid";
+import { onValue, ref, remove, set, update } from "firebase/database";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import moment from "moment";
 
 const headerStyle = {
   textAlign: "right",
@@ -24,7 +30,10 @@ const layoutStyle = {
 const { TextArea } = Input;
 
 export const Home = () => {
-  const [tasks, setTasks] = useState([]);
+  // const [tasks, setTasks] = useState([]);
+
+  const [todos, setTodos] = useState([]);
+  const [tempUuid, setTempUuid] = useState("");
   const [defaultData, setDefaultDataSet] = useState(null);
 
   const [modal2Open, setModal2Open] = useState(false);
@@ -33,31 +42,63 @@ export const Home = () => {
 
   const navigate = useNavigate();
 
+  const val = localStorage.getItem("user");
+
+  var object = JSON.parse(val);
+
+  const path = object.uid;
+
+  useEffect(() => {
+    onValue(ref(database, path), (snapshot) => {
+      setTodos([]);
+      const data = snapshot.val();
+      if (data !== null) {
+        try {
+          Object.values(data).map((todo) => {
+            setTodos((prev) => [...prev, todo]);
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    });
+  }, [path]);
+
   const submitHandler = (e) => {
     e.preventDefault();
 
     form
       .validateFields()
-      .then((value) => {
+      .then(async (value) => {
         if (value !== null) {
-          const id = new Date().getTime().toString();
-          const valueWithId = { id, ...value };
-
-          console.log(defaultData);
-
           if (defaultData !== null) {
-            const updatedTask = tasks.map((task) =>
-              task.id === defaultData.id ? valueWithId : task
-            );
-            setTasks(updatedTask);
+            try {
+              await update(ref(database, `${path}/${tempUuid}`), {
+                uuid: tempUuid,
+                date: moment().format("L"),
+                value,
+              });
 
-            notification.success({
-              message: "Edit",
-              description: "Task Edit successfully",
-              duration: 1,
-            });
+              // setTodos([]);
+
+              notification.success({
+                message: "Edit",
+                description: "Task Edit successfully",
+                duration: 1,
+              });
+            } catch (err) {
+              console.error(err);
+            }
           } else {
-            setTasks((prev) => [...prev, valueWithId]);
+            // setTasks((prev) => [...prev, valueWithId]);
+
+            //store
+            const uuid = uid();
+            await set(ref(database, `${path}/${uuid}`), {
+              uuid,
+              date: moment().format("L"),
+              value,
+            });
 
             notification.success({
               message: "SUCCESS",
@@ -74,39 +115,48 @@ export const Home = () => {
       .catch((err) => console.log(err));
   };
 
-  console.log(tasks);
-
-  const editTask = (index) => {
+  const editTask = (item) => {
     setModal2Open((pr) => !pr);
-    console.log(index);
-    const taskToEdit = tasks[index];
-    form.setFieldsValue(taskToEdit);
-    setDefaultDataSet(taskToEdit);
+    form.setFieldsValue(item?.value);
+    setDefaultDataSet(item?.value);
+
+    setTempUuid(item?.uuid);
   };
 
-  const deleteTask = (index) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
-    notification.success({
-      message: "DELETE",
-      description: "Task Deleted successfully",
-      duration: 1,
-    });
+  const deleteTask = async (item) => {
+    // const updatedTasks = tasks.filter((_, i) => i !== index);
+    // setTasks(updatedTasks);
+
+    //deleteTask
+
+    try {
+      await remove(ref(database, `${path}/${item.uuid}`));
+
+      notification.success({
+        message: "DELETE",
+        description: "Task Deleted successfully",
+        duration: 1,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    try {
+      await signOut(auth);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
-    notification.success({
-      message: "Logout Successfully",
-      duration: 1,
-    });
-    navigate("/login");
+      notification.success({
+        message: "Logout Successfully",
+        duration: 1,
+      });
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+    }
   };
-
-  console.log(defaultData);
 
   return (
     <>
@@ -138,7 +188,7 @@ export const Home = () => {
           title="Add your task"
           centered
           open={modal2Open}
-          okText={defaultData !== null ? "Edit" : "Add"}
+          okText={defaultData !== null ? "Update" : "Add"}
           onOk={submitHandler}
           onCancel={() => {
             setModal2Open(false);
@@ -172,7 +222,8 @@ export const Home = () => {
                 },
               ]}
             >
-              <TextArea
+              <ReactQuill placeholder="Enter Description" />
+              {/* <TextArea
                 showCount
                 maxLength={100}
                 required={true}
@@ -181,14 +232,14 @@ export const Home = () => {
                   height: 120,
                   resize: "none",
                 }}
-              />
+              /> */}
             </Form.Item>
             <br />
           </Form>
         </Modal>
         <br />
         <br />
-        <Task tasks={tasks} onDelete={deleteTask} onEdit={editTask} />
+        <Task tasks={todos} onDelete={deleteTask} onEdit={editTask} />
       </div>
     </>
   );
