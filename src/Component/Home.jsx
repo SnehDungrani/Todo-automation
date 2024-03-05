@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Layout, Modal, notification } from "antd";
+import { Button, Form, Input, Layout, Modal, Radio, notification } from "antd";
 import Task from "./Task";
 import { Header } from "antd/es/layout/layout";
 import { signOut } from "firebase/auth";
@@ -27,7 +27,7 @@ const layoutStyle = {
   maxWidth: "calc(100%)",
 };
 
-const { TextArea } = Input;
+// const { TextArea } = Input;
 
 export const Home = () => {
   // const [tasks, setTasks] = useState([]);
@@ -43,9 +43,7 @@ export const Home = () => {
   const navigate = useNavigate();
 
   const val = localStorage.getItem("user");
-
   var object = JSON.parse(val);
-
   const path = object.uid;
 
   useEffect(() => {
@@ -75,7 +73,7 @@ export const Home = () => {
             try {
               await update(ref(database, `${path}/${tempUuid}`), {
                 uuid: tempUuid,
-                date: moment().format("L"),
+                date: moment().format("MMMM Do YYYY, h:mm:ss a"),
                 value,
               });
 
@@ -96,7 +94,7 @@ export const Home = () => {
             const uuid = uid();
             await set(ref(database, `${path}/${uuid}`), {
               uuid,
-              date: moment().format("L"),
+              date: moment().format("MMMM Do YYYY, h:mm:ss a"),
               value,
             });
 
@@ -235,6 +233,12 @@ export const Home = () => {
               /> */}
             </Form.Item>
             <br />
+            <Form.Item id="radio" name="type" label="Select Task Type" required>
+              <Radio.Group>
+                <Radio value="current">Current Todo</Radio>
+                <Radio value="daily">Daily Todo</Radio>
+              </Radio.Group>
+            </Form.Item>
           </Form>
         </Modal>
         <br />
