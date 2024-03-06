@@ -49,6 +49,7 @@ export const Home = () => {
   const path = object.uid;
 
   useEffect(() => {
+    //fetch
     onValue(ref(database, path), (snapshot) => {
       setTodos([]);
 
@@ -79,6 +80,7 @@ export const Home = () => {
         if (value !== null) {
           if (defaultData !== null) {
             try {
+              //update
               await update(ref(database, `${path}/${tempUuid}`), {
                 uuid: tempUuid,
                 date: moment().format("MMMM Do YYYY, h:mm:ss a"),
