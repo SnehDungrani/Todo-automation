@@ -1,22 +1,38 @@
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, Button, List, Popconfirm } from "antd";
+import Badge from "./Badge";
 
-const Task = ({ tasks, title, description, onDelete, onEdit }) => {
+const Task = ({ tasks, onDelete, onEdit }) => {
+  const [selectedType, setSelectedType] = useState("current");
+  const [currentTasks, setCurrentTasks] = useState([]);
+  const [dailyTasks, setDailyTasks] = useState([]);
+
+  useEffect(() => {
+    setCurrentTasks(tasks.filter((item) => item.value.type === "current"));
+    setDailyTasks(tasks.filter((item) => item.value.type === "daily"));
+  }, [tasks]);
+
+  const filteredTasks = selectedType === "current" ? currentTasks : dailyTasks;
+
   return (
     <>
       <menu id="tabs">
         <li>
-          <Button>Current Todos</Button>
+          <Button onClick={() => setSelectedType("current")}>
+            Current Todos
+          </Button>
+          <Badge caption={currentTasks.length} />
         </li>
         <li>
-          <Button>Daily Todos</Button>
+          <Button onClick={() => setSelectedType("daily")}>Daily Todos</Button>
+          <Badge caption={dailyTasks.length} />
         </li>
       </menu>
 
-      <List itemLayout="horizontal" dataSource={tasks}>
-        {tasks.map((item, index) => (
+      <List itemLayout="horizontal" dataSource={filteredTasks}>
+        {filteredTasks.map((item, index) => (
           <List.Item key={index}>
             <List.Item.Meta
               avatar={
@@ -52,6 +68,8 @@ const Task = ({ tasks, title, description, onDelete, onEdit }) => {
                   }}
                 />
               }
+              cancelText="No"
+              okText="Yes"
               onConfirm={() => onDelete(item)}
             >
               <DeleteOutlined style={{ color: "#FF0000", fontSize: "25px" }} />
