@@ -62,4 +62,16 @@ body {
 #tabs li {
   width: 50%;
   list-style-type: none;
+  display: flex;
+  align-items: center;
+
+}
+
+#tabs li button {
+  display: flex;
+  border: none;
+}
+
+span {
+  height: 2vh;
 }
