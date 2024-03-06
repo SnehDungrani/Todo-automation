@@ -110,6 +110,8 @@ const SignUp = () => {
                   style={{
                     width: "310px",
                     height: "35px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 />
               </Form.Item>
@@ -140,6 +142,8 @@ const SignUp = () => {
                   style={{
                     width: "310px",
                     height: "35px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 />
               </Form.Item>
@@ -175,6 +179,8 @@ const SignUp = () => {
                   style={{
                     width: "310px",
                     height: "35px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 />
               </Form.Item>
@@ -216,10 +222,9 @@ const SignUp = () => {
                 shape="round"
                 icon={<LoginOutlined />}
                 style={{ width: "10vw" }}
-                onClick={loginHandler}
                 htmlType="submit"
               >
-                <Link to=".." relative="path">
+                <Link to="/login" relative="path">
                   Login
                 </Link>
               </Button>

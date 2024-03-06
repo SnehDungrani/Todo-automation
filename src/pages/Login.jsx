@@ -117,6 +117,8 @@ const Login = () => {
                   style={{
                     width: "310px",
                     height: "35px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 />
               </Form.Item>
@@ -147,6 +149,8 @@ const Login = () => {
                   style={{
                     width: "310px",
                     height: "35px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 />
               </Form.Item>
