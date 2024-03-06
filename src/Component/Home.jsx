@@ -57,7 +57,7 @@ export const Home = () => {
         try {
           setTimeout(() => {
             setIsLoading(false);
-          }, 2000);
+          }, 1000);
 
           Object.values(data).map((todo) => {
             return setTodos((prev) => [...prev, todo]);
@@ -88,9 +88,8 @@ export const Home = () => {
               // setTodos([]);
 
               Notification({
-                messageName: "Edit",
-                descriptionName: "Task Edit successfully",
-                durationTime: 1,
+                messageName: `${value.title} is Updated Successfully.`,
+                durationTime: 1.5,
               });
             } catch (err) {
               console.error(err);
@@ -138,11 +137,12 @@ export const Home = () => {
     try {
       await remove(ref(database, `${path}/${item.uuid}`));
 
-      Notification({
-        messageName: "DELETE",
-        descriptionName: "Task Deleted successfully",
-        durationTime: 1,
-      });
+      setTimeout(() => {
+        Notification({
+          messageName: `${item.value.title} is Deleted Successfully`,
+          durationTime: 1.5,
+        });
+      }, 1000);
     } catch (err) {
       console.error(err);
     }
