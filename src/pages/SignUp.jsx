@@ -1,11 +1,12 @@
 // import React, { useState } from "react";
-import { Button, Card, Input, Form, Checkbox, notification, Spin } from "antd";
+import { Button, Card, Input, Form, Checkbox, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useState } from "react";
+import Notification from "../Component/Notification";
 
 const SignUp = () => {
   const [form] = Form.useForm();
@@ -35,9 +36,9 @@ const SignUp = () => {
           localStorage.setItem("token", user.accessToken);
           localStorage.setItem("user", JSON.stringify(user));
 
-          notification.success({
-            message: "signup Successfully",
-            duration: 1,
+          Notification({
+            messageName: "signup Successfully",
+            durationTime: 1,
           });
 
           navigate("/login");

@@ -14,7 +14,8 @@ const Task = ({ tasks, title, description, onDelete, onEdit }) => {
           <Button>Daily Todos</Button>
         </li>
       </menu>
-      <List itemLayout="horizontal" dataSource={(title, description)}>
+
+      <List itemLayout="horizontal" dataSource={tasks}>
         {tasks.map((item, index) => (
           <List.Item key={index}>
             <List.Item.Meta

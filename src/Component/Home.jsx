@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Layout, Modal, Radio, notification } from "antd";
+import { Button, Form, Input, Layout, Modal, Radio, Spin, Tooltip } from "antd";
 import Task from "./Task";
 import { Header } from "antd/es/layout/layout";
 import { signOut } from "firebase/auth";
@@ -12,6 +12,7 @@ import { onValue, ref, remove, set, update } from "firebase/database";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import moment from "moment";
+import Notification from "./Notification";
 
 const headerStyle = {
   textAlign: "right",
@@ -36,7 +37,8 @@ export const Home = () => {
   const [tempUuid, setTempUuid] = useState("");
   const [defaultData, setDefaultDataSet] = useState(null);
 
-  const [modal2Open, setModal2Open] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -49,18 +51,24 @@ export const Home = () => {
   useEffect(() => {
     onValue(ref(database, path), (snapshot) => {
       setTodos([]);
+
       const data = snapshot.val();
       if (data !== null) {
         try {
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 2000);
+
           Object.values(data).map((todo) => {
-            setTodos((prev) => [...prev, todo]);
+            return setTodos((prev) => [...prev, todo]);
           });
+          setIsLoading(true);
         } catch (err) {
           console.error(err);
         }
       }
     });
-  }, [path]);
+  }, [setIsLoading, path]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -79,10 +87,10 @@ export const Home = () => {
 
               // setTodos([]);
 
-              notification.success({
-                message: "Edit",
-                description: "Task Edit successfully",
-                duration: 1,
+              Notification({
+                messageName: "Edit",
+                descriptionName: "Task Edit successfully",
+                durationTime: 1,
               });
             } catch (err) {
               console.error(err);
@@ -98,14 +106,14 @@ export const Home = () => {
               value,
             });
 
-            notification.success({
-              message: "SUCCESS",
-              description: "Task Added successfully",
-              duration: 1,
+            Notification({
+              messageName: "SUCCESS",
+              descriptionName: "Task Added successfully",
+              durationTime: 1,
             });
           }
 
-          setModal2Open((pr) => !pr);
+          setIsModalOpen((pr) => !pr);
           setDefaultDataSet(null);
           form.resetFields();
         }
@@ -114,7 +122,7 @@ export const Home = () => {
   };
 
   const editTask = (item) => {
-    setModal2Open((pr) => !pr);
+    setIsModalOpen((pr) => !pr);
     form.setFieldsValue(item?.value);
     setDefaultDataSet(item?.value);
 
@@ -130,10 +138,10 @@ export const Home = () => {
     try {
       await remove(ref(database, `${path}/${item.uuid}`));
 
-      notification.success({
-        message: "DELETE",
-        description: "Task Deleted successfully",
-        duration: 1,
+      Notification({
+        messageName: "DELETE",
+        descriptionName: "Task Deleted successfully",
+        durationTime: 1,
       });
     } catch (err) {
       console.error(err);
@@ -146,9 +154,9 @@ export const Home = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
-      notification.success({
-        message: "Logout Successfully",
-        duration: 1,
+      Notification({
+        messageName: "Logout Successfully",
+        durationTime: 1,
       });
       navigate("/login");
     } catch (err) {
@@ -160,9 +168,11 @@ export const Home = () => {
     <>
       <Layout style={layoutStyle}>
         <Header style={headerStyle}>
-          <Button onClick={handleLogout}>
-            <AiOutlineLogout />
-          </Button>
+          <Tooltip placement="bottom" title="Logout" color="#23355d">
+            <Button onClick={handleLogout}>
+              <AiOutlineLogout />
+            </Button>
+          </Tooltip>
         </Header>
       </Layout>
       <div className="container ">
@@ -176,7 +186,7 @@ export const Home = () => {
           <Button
             type="dashed"
             block
-            onClick={() => setModal2Open(true)}
+            onClick={() => setIsModalOpen(true)}
             style={{ borderColor: "#8458B3" }}
           >
             + Add New Task
@@ -185,11 +195,11 @@ export const Home = () => {
         <Modal
           title="Add your task"
           centered
-          open={modal2Open}
+          open={isModalOpen}
           okText={defaultData !== null ? "Update" : "Add"}
           onOk={submitHandler}
           onCancel={() => {
-            setModal2Open(false);
+            setIsModalOpen(false);
             setDefaultDataSet(null);
           }}
           okButtonProps={{ style: { backgroundColor: "#8458B3" } }}
@@ -243,7 +253,17 @@ export const Home = () => {
         </Modal>
         <br />
         <br />
-        <Task tasks={todos} onDelete={deleteTask} onEdit={editTask} />
+        {isLoading ? (
+          <Spin
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          />
+        ) : (
+          <Task tasks={todos} onDelete={deleteTask} onEdit={editTask} />
+        )}
       </div>
     </>
   );

@@ -1,11 +1,12 @@
 // import React, { useState } from "react";
-import { Button, Card, Input, Form, notification, Spin, Modal } from "antd";
+import { Button, Card, Input, Form, Spin, Modal } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
+import Notification from "../Component/Notification";
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -16,18 +17,12 @@ const Login = () => {
 
   const countDown = () => {
     let secondsToGo = 5;
-    const instance = modal.success({
-      title: "This is a notification message",
-      content: `This modal will be destroyed after ${secondsToGo} second.`,
+    const instance = modal.error({
+      title: "Authentication Failed!",
+      content: `Please use correct Email and Password.`,
     });
-    const timer = setInterval(() => {
-      secondsToGo -= 1;
-      instance.update({
-        content: `This modal will be destroyed after ${secondsToGo} second.`,
-      });
-    }, 1000);
+
     setTimeout(() => {
-      clearInterval(timer);
       instance.destroy();
     }, secondsToGo * 1000);
   };
@@ -51,9 +46,9 @@ const Login = () => {
           localStorage.setItem("token", user.accessToken);
           localStorage.setItem("user", JSON.stringify(user));
 
-          notification.success({
-            message: "Login Successfully",
-            duration: 1,
+          Notification({
+            messageName: "Login Successfully",
+            durationTime: 1,
           });
           setIsLoading(false);
 
