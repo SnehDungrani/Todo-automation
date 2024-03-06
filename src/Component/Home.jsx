@@ -231,16 +231,6 @@ export const Home = () => {
               ]}
             >
               <ReactQuill placeholder="Enter Description" />
-              {/* <TextArea
-                showCount
-                maxLength={100}
-                required={true}
-                placeholder="Enter description"
-                style={{
-                  height: 120,
-                  resize: "none",
-                }}
-              /> */}
             </Form.Item>
             <br />
             <Form.Item id="radio" name="type" label="Select Task Type" required>
