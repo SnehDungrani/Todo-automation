@@ -7,13 +7,14 @@ import SignUp from "./pages/SignUp";
 import RootLayout from "./pages/Root";
 import { Home } from "./Component/Home";
 import Protected from "./pages/Protected";
+import WelcomePage from "./pages/WelcomePage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Protected /> },
+      { index: true, element: <WelcomePage /> },
       {
         path: "/",
         element: <Protected />,
