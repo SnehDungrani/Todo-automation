@@ -13,6 +13,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import moment from "moment";
 import Notification from "./Notification";
+import axios from "axios";
 
 const headerStyle = {
   textAlign: "right",
@@ -50,26 +51,36 @@ export const Home = () => {
 
   useEffect(() => {
     //fetch
-    onValue(ref(database, path), (snapshot) => {
-      setTodos([]);
 
-      const data = snapshot.val();
-      if (data !== null) {
-        try {
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 1000);
+    axios
+      .get("https://todo-6-4clg.onrender.com/api/v1/tasks/gettasks")
+      .then((res) => {
+        console.log(res);
 
-          Object.values(data).map((todo) => {
-            return setTodos((prev) => [...prev, todo]);
-          });
-          setIsLoading(true);
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    });
-  }, [setIsLoading, path]);
+        setTodos(res); //do change
+      })
+      .catch((err) => console.log(err));
+
+    // onValue(ref(database, path), (snapshot) => {
+    //   setTodos([]);
+    //   const data = snapshot.val();
+    //   if (data !== null) {
+    //     try {
+    //       setTimeout(() => {
+    //         setIsLoading(false);
+    //       }, 1000);
+
+    //       Object.values(data).map((todo) => {
+    //         return setTodos((prev) => [...prev, todo]);
+    //       });
+    //       setIsLoading(true);
+    //     } catch (err) {
+    //       console.error(err);
+    //     }
+    //   }
+    // });
+    // }, [setIsLoading, path]);
+  }, []);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -81,6 +92,13 @@ export const Home = () => {
           if (defaultData !== null) {
             try {
               //update
+
+              const id = "";
+              axios
+                .patch(`https://todo-6-4clg.onrender.com/api/v1/tasks/${id}`)
+                .then((res) => console.log(res))
+                .catch((err) => console.log(err));
+
               await update(ref(database, `${path}/${tempUuid}`), {
                 uuid: tempUuid,
                 date: moment().format("MMMM Do YYYY, h:mm:ss a"),
@@ -101,11 +119,18 @@ export const Home = () => {
 
             //store
             const uuid = uid();
-            await set(ref(database, `${path}/${uuid}`), {
-              uuid,
-              date: moment().format("MMMM Do YYYY, h:mm:ss a"),
-              value,
-            });
+            // await set(ref(database, `${path}/${uuid}`), {
+            //   uuid,
+            //   date: moment().format("MMMM Do YYYY, h:mm:ss a"),
+            //   value,
+            // });
+
+            axios
+              .post("https://todo-6-4clg.onrender.com/api/v1/tasks/create", {
+                value,
+              })
+              .then((res) => console.log(res))
+              .catch((err) => console.log(err));
 
             Notification({
               messageName: "SUCCESS",
@@ -137,6 +162,10 @@ export const Home = () => {
     //deleteTask
 
     try {
+      axios
+        .delete("https://todo-6-4clg.onrender.com/api/v1/tasks")
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
       await remove(ref(database, `${path}/${item.uuid}`));
 
       setTimeout(() => {

@@ -7,10 +7,13 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useState } from "react";
 import Notification from "../Component/Notification";
+import axios from "axios";
 
 const SignUp = () => {
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState();
+
+  const [isUser, setIsUser] = useState();
 
   const navigate = useNavigate();
 
@@ -23,7 +26,23 @@ const SignUp = () => {
         console.log(value);
         setIsLoading(true);
 
+        const userDetail = {
+          email: value.email,
+          password: value.password,
+        };
+
         try {
+          axios
+            .post(
+              "https://todo-6-4clg.onrender.com/api/v1/users/signup",
+              userDetail
+            )
+            .then((res) => {
+              console.log(res.data);
+              // setIsUser(res.data);
+            })
+            .catch((err) => console.log(err));
+
           const userCredential = await createUserWithEmailAndPassword(
             auth,
             value.email,
