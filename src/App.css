@@ -10,9 +10,14 @@
 body {
   background-color: #d0bdf4;
   margin: 0;
-  padding: 0;
+  padding: 0 0 2% 0;
   font-family: 'Montserrat', sans-serif;
   box-sizing: border-box;
+  overflow-y: scroll;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 
