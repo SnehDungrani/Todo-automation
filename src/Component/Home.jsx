@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Layout, Modal, Radio, Spin, Tooltip } from "antd";
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  Layout,
+  Modal,
+  Radio,
+  Spin,
+  Tooltip,
+} from "antd";
 import Task from "./Task";
 import { Header } from "antd/es/layout/layout";
 import { signOut } from "firebase/auth";
@@ -14,6 +24,7 @@ import "react-quill/dist/quill.snow.css";
 import moment from "moment";
 import Notification from "./Notification";
 import axios from "axios";
+import useHttp from "../Hooks/use-http";
 
 const headerStyle = {
   textAlign: "right",
@@ -35,7 +46,7 @@ export const Home = () => {
   // const [tasks, setTasks] = useState([]);
 
   const [todos, setTodos] = useState([]);
-  const [tempUuid, setTempUuid] = useState("");
+  const [tempId, setTempId] = useState("");
   const [defaultData, setDefaultDataSet] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,22 +55,27 @@ export const Home = () => {
   const [form] = Form.useForm();
 
   const navigate = useNavigate();
-
-  const val = localStorage.getItem("user");
-  var object = JSON.parse(val);
-  const path = object.uid;
+  const API = useHttp();
+  // const val = localStorage.getItem("user");
+  // var object = JSON.parse(val);
+  // const path = object.uid;
 
   useEffect(() => {
     //fetch
+    setIsLoading(true);
+    console.log(tempId);
 
-    axios
-      .get("https://todo-6-4clg.onrender.com/api/v1/tasks/gettasks")
-      .then((res) => {
-        console.log(res);
-
-        setTodos(res); //do change
-      })
-      .catch((err) => console.log(err));
+    API.sendRequest(
+      {
+        endpoint: "https://todo-6-4clg.onrender.com/api/v1/tasks/gettasks",
+      },
+      (res) => {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
+        setTodos(res.data);
+      }
+    );
 
     // onValue(ref(database, path), (snapshot) => {
     //   setTodos([]);
@@ -69,7 +85,6 @@ export const Home = () => {
     //       setTimeout(() => {
     //         setIsLoading(false);
     //       }, 1000);
-
     //       Object.values(data).map((todo) => {
     //         return setTodos((prev) => [...prev, todo]);
     //       });
@@ -88,29 +103,31 @@ export const Home = () => {
     form
       .validateFields()
       .then(async (value) => {
+        console.log(value);
         if (value !== null) {
           if (defaultData !== null) {
             try {
               //update
 
-              const id = "";
-              axios
-                .patch(`https://todo-6-4clg.onrender.com/api/v1/tasks/${id}`)
-                .then((res) => console.log(res))
-                .catch((err) => console.log(err));
-
-              await update(ref(database, `${path}/${tempUuid}`), {
-                uuid: tempUuid,
-                date: moment().format("MMMM Do YYYY, h:mm:ss a"),
+              API.sendRequest(
+                {
+                  endpoint: `https://todo-6-4clg.onrender.com/api/v1/tasks/${tempId}`,
+                  type: "PATCH",
+                },
+                (res) => {
+                  console.log(res);
+                },
                 value,
-              });
+                "Task Updated successfully"
+              );
+
+              // await update(ref(database, `${path}/${tempUuid}`), {
+              //   uuid: tempUuid,
+              //   date: moment().format("MMMM Do YYYY, h:mm:ss a"),
+              //   value,
+              // });
 
               // setTodos([]);
-
-              Notification({
-                messageName: `${value.title} is Updated Successfully.`,
-                durationTime: 1.5,
-              });
             } catch (err) {
               console.error(err);
             }
@@ -118,25 +135,25 @@ export const Home = () => {
             // setTasks((prev) => [...prev, valueWithId]);
 
             //store
-            const uuid = uid();
+
+            API.sendRequest(
+              {
+                endpoint:
+                  "https://todo-6-4clg.onrender.com/api/v1/tasks/create",
+                type: "POST",
+              },
+              (res) => {
+                console.log(res);
+              },
+              value,
+              "Task Added successfully"
+            );
+            // const uuid = uid();
             // await set(ref(database, `${path}/${uuid}`), {
             //   uuid,
             //   date: moment().format("MMMM Do YYYY, h:mm:ss a"),
             //   value,
             // });
-
-            axios
-              .post("https://todo-6-4clg.onrender.com/api/v1/tasks/create", {
-                value,
-              })
-              .then((res) => console.log(res))
-              .catch((err) => console.log(err));
-
-            Notification({
-              messageName: "SUCCESS",
-              descriptionName: "Task Added successfully",
-              durationTime: 1,
-            });
           }
 
           setIsModalOpen((pr) => !pr);
@@ -149,34 +166,43 @@ export const Home = () => {
 
   const editTask = (item) => {
     setIsModalOpen((pr) => !pr);
-    form.setFieldsValue(item?.value);
-    setDefaultDataSet(item?.value);
+    form.setFieldsValue(item);
+    setDefaultDataSet(item);
 
-    setTempUuid(item?.uuid);
+    setTempId(item.id);
   };
 
   const deleteTask = async (item) => {
-    // const updatedTasks = tasks.filter((_, i) => i !== index);
-    // setTasks(updatedTasks);
+    // setTempId(item.id);
+
+    API.sendRequest(
+      {
+        endpoint: `https://todo-6-4clg.onrender.com/api/v1/tasks/${item.id}`,
+        type: "DELETE",
+      },
+      (res) => {
+        console.log(res);
+      },
+      {},
+      "Task Deleted successfully"
+    );
 
     //deleteTask
-
-    try {
-      axios
-        .delete("https://todo-6-4clg.onrender.com/api/v1/tasks")
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err));
-      await remove(ref(database, `${path}/${item.uuid}`));
-
-      setTimeout(() => {
-        Notification({
-          messageName: `${item.value.title} is Deleted Successfully`,
-          durationTime: 1.5,
-        });
-      }, 1000);
-    } catch (err) {
-      console.error(err);
-    }
+    // try {
+    //   // axios
+    //   //   .delete("https://todo-6-4clg.onrender.com/api/v1/tasks")
+    //   //   .then((res) => console.log(res))
+    //   //   .catch((err) => console.log(err));
+    //   await remove(ref(database, `${path}/${item.uuid}`));
+    //   setTimeout(() => {
+    //     Notification({
+    //       messageName: `${item.value.title} is Deleted Successfully`,
+    //       durationTime: 1.5,
+    //     });
+    //   }, 1000);
+    // } catch (err) {
+    //   console.error(err);
+    // }
   };
 
   const handleLogout = async () => {
@@ -194,6 +220,8 @@ export const Home = () => {
       console.error(err);
     }
   };
+
+  console.log(todos);
 
   return (
     <>
@@ -264,10 +292,17 @@ export const Home = () => {
               <ReactQuill placeholder="Enter Description" />
             </Form.Item>
             <br />
-            <Form.Item id="radio" name="type" label="Select Task Type" required>
+            <Form.Item
+              id="radio"
+              name="status"
+              label="Select Task Type"
+              required
+            >
               <Radio.Group>
-                <Radio value="current">Current Todo</Radio>
-                <Radio value="daily">Daily Todo</Radio>
+                <Radio value="IN-PROGRESS">Current Todo</Radio>
+                <Radio value="TODO">Todo</Radio>
+                <Radio value="DAILY">Daily Todo</Radio>
+                <Radio value="DONE">Mark as completed</Radio>
               </Radio.Group>
             </Form.Item>
           </Form>

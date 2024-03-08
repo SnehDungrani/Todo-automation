@@ -3,17 +3,20 @@ import { Button, Card, Input, Form, Spin, Modal } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
-import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import Notification from "../Component/Notification";
+
+import useHttp from "../Hooks/use-http";
 
 const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
+  const API = useHttp();
+
   const [isLoading, setIsLoading] = useState(false);
   const [modal, contextHolder] = Modal.useModal();
+
+  const [isRes, setIsRes] = useState();
 
   const countDown = () => {
     let secondsToGo = 5;
@@ -33,33 +36,32 @@ const Login = () => {
       .then(async (value) => {
         console.log(value);
         setIsLoading(true);
-        try {
-          const userCredential = await signInWithEmailAndPassword(
-            auth,
-            value.email,
-            value.password
-          );
 
-          console.log(userCredential);
+        API.sendRequest(
+          {
+            endpoint: "https://todo-6-4clg.onrender.com/api/v1/users/login",
+            type: "POST",
+          },
+          (res) => {
+            console.log(res);
 
-          const user = userCredential.user;
-          localStorage.setItem("token", user.accessToken);
-          localStorage.setItem("user", JSON.stringify(user));
+            if (res.status === "success") {
+              navigate("/home");
+            }
 
-          Notification({
-            messageName: "Login Successfully",
-            durationTime: 1,
-          });
+            const token = res.tokens.token;
+            localStorage.setItem("token", token);
+
+            setIsRes(res);
+          },
+          value,
+          "Login Successfully"
+        );
+
+        if (isRes.status === "success") {
           setIsLoading(false);
-
-          navigate("/home");
-        } catch (err) {
-          console.error(err);
-          setIsLoading(false);
-          countDown();
         }
       })
-
       .catch((err) => {
         form.resetFields();
         console.log(err);

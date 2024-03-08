@@ -3,15 +3,19 @@ import { Button, Card, Input, Form, Checkbox, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { TbUserEdit } from "react-icons/tb";
+// import { createUserWithEmailAndPassword } from "firebase/auth";
+// import { auth } from "../firebase";
 import { useState } from "react";
 import Notification from "../Component/Notification";
-import axios from "axios";
+// import axios from "axios";
+import useHttp from "../Hooks/use-http";
 
 const SignUp = () => {
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState();
+
+  const API = useHttp();
 
   const [isUser, setIsUser] = useState();
 
@@ -27,44 +31,41 @@ const SignUp = () => {
         setIsLoading(true);
 
         const userDetail = {
+          name: value.name,
           email: value.email,
           password: value.password,
         };
 
-        try {
-          axios
-            .post(
-              "https://todo-6-4clg.onrender.com/api/v1/users/signup",
-              userDetail
-            )
-            .then((res) => {
-              console.log(res.data);
-              // setIsUser(res.data);
-            })
-            .catch((err) => console.log(err));
+        API.sendRequest(
+          {
+            endpoint: "https://todo-6-4clg.onrender.com/api/v1/users/signup",
+            type: "POST",
+          },
+          (res) => {
+            console.log(res);
+          },
+          userDetail,
+          "Signup Successfully"
+        );
 
-          const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            value.email,
-            value.password
-          );
+        // const userCredential = await createUserWithEmailAndPassword(
+        //   auth,
+        //   value.email,
+        //   value.password
+        // );
 
-          console.log(userCredential);
+        // console.log(userCredential);
 
-          const user = userCredential.user;
-          localStorage.setItem("token", user.accessToken);
-          localStorage.setItem("user", JSON.stringify(user));
+        // const user = userCredential.user;
+        // localStorage.setItem("token", user.accessToken);
+        // localStorage.setItem("user", JSON.stringify(user));
 
-          Notification({
-            messageName: "signup Successfully",
-            durationTime: 1,
-          });
+        // Notification({
+        //   messageName: "signup Successfully",
+        //   durationTime: 1,
+        // });
 
-          navigate("/login");
-        } catch (err) {
-          console.error(err);
-          setIsLoading(false);
-        }
+        navigate("/login");
       })
       .catch((err) => {
         form.resetFields();
@@ -93,7 +94,7 @@ const SignUp = () => {
         <Card
           style={{
             width: "450px",
-            height: "570px",
+            height: "620px",
           }}
         >
           <h1 style={{ textAlign: "center" }}>Sign Up</h1>
@@ -106,6 +107,29 @@ const SignUp = () => {
                 alignItems: "center",
               }}
             >
+              <Form.Item
+                id="name"
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your E-mail!",
+                  },
+                ]}
+              >
+                <Input
+                  id="name"
+                  name="name"
+                  prefix={<TbUserEdit />}
+                  style={{
+                    width: "310px",
+                    height: "35px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                  placeholder="Name"
+                />
+              </Form.Item>
               <Form.Item
                 id="email"
                 name="email"
