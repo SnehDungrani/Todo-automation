@@ -4,31 +4,24 @@ import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { Link, useNavigate } from "react-router-dom";
 import { TbUserEdit } from "react-icons/tb";
-// import { createUserWithEmailAndPassword } from "firebase/auth";
-// import { auth } from "../firebase";
 import { useState } from "react";
-import Notification from "../Component/Notification";
-// import axios from "axios";
 import useHttp from "../Hooks/use-http";
+import CONSTANTS from "../util/constant/CONSTANTS";
 
 const SignUp = () => {
   const [form] = Form.useForm();
+  const [isRes, setIsRes] = useState();
   const [isLoading, setIsLoading] = useState();
-
-  const API = useHttp();
-
-  const [isUser, setIsUser] = useState();
-
   const navigate = useNavigate();
 
-  // const [hasError, setHasError] = useState(true);
+  const API = useHttp();
 
   const loginHandler = () => {
     form
       .validateFields()
       .then(async (value) => {
         console.log(value);
-        setIsLoading(true);
+        setIsLoading((pr) => !pr);
 
         const userDetail = {
           name: value.name,
@@ -37,49 +30,28 @@ const SignUp = () => {
         };
 
         API.sendRequest(
-          {
-            endpoint: "https://todo-6-4clg.onrender.com/api/v1/users/signup",
-            type: "POST",
-          },
+          CONSTANTS.API.auth.signup,
           (res) => {
             console.log(res);
+            setIsRes(res);
           },
           userDetail,
           "Signup Successfully"
         );
 
-        // const userCredential = await createUserWithEmailAndPassword(
-        //   auth,
-        //   value.email,
-        //   value.password
-        // );
-
-        // console.log(userCredential);
-
-        // const user = userCredential.user;
-        // localStorage.setItem("token", user.accessToken);
-        // localStorage.setItem("user", JSON.stringify(user));
-
-        // Notification({
-        //   messageName: "signup Successfully",
-        //   durationTime: 1,
-        // });
-
-        navigate("/login");
+        if (isRes.status === "success") {
+          setIsLoading((pr) => !pr);
+          navigate("/login");
+        }
       })
       .catch((err) => {
-        form.resetFields();
         console.log(err);
+        form.resetFields();
+        setTimeout(() => {
+          setIsLoading((pr) => !pr);
+        }, 2000);
       });
   };
-
-  // const buttonChangeHandler = () => {
-  //   if (form.validateFields()) {
-  //     setHasError(false);
-  //   } else {
-  //     setHasError(true);
-  //   }
-  // };
 
   return (
     <div gap="middle" wrap="wrap">

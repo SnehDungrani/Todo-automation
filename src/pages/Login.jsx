@@ -4,8 +4,10 @@ import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { useState } from "react";
+import CONSTANTS from "../util/constant/CONSTANTS";
 
 import useHttp from "../Hooks/use-http";
+import { setAuthDetails } from "../util/API/authStorage";
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -35,13 +37,10 @@ const Login = () => {
       .validateFields()
       .then(async (value) => {
         console.log(value);
-        setIsLoading(true);
+        setIsLoading((pr) => !pr);
 
         API.sendRequest(
-          {
-            endpoint: "https://todo-6-4clg.onrender.com/api/v1/users/login",
-            type: "POST",
-          },
+          CONSTANTS.API.auth.login,
           (res) => {
             console.log(res);
 
@@ -49,22 +48,26 @@ const Login = () => {
               navigate("/home");
             }
 
-            const token = res.tokens.token;
-            localStorage.setItem("token", token);
+            setAuthDetails(res.tokens.token);
 
             setIsRes(res);
+            window.location.reload();
           },
           value,
           "Login Successfully"
         );
 
         if (isRes.status === "success") {
-          setIsLoading(false);
+          setIsLoading((pr) => !pr);
         }
       })
       .catch((err) => {
-        form.resetFields();
+        // countDown();
         console.log(err);
+        form.resetFields();
+        setTimeout(() => {
+          setIsLoading((pr) => !pr);
+        }, 2000);
       });
   };
 
