@@ -5,26 +5,23 @@ import { Alert, Avatar, Button, List, Popconfirm } from "antd";
 import { GrDatabase } from "react-icons/gr";
 import Badge from "./Badge";
 
-const Task = ({ nTasks, dTasks, onDelete, onEdit }) => {
+const Task = ({
+  nTasks,
+  dTasks,
+  onDelete,
+  onEdit,
+  onFilter,
+  filteredData,
+  onDailyFilter,
+  dailyFilteredData,
+}) => {
   console.log(nTasks, dTasks);
-  const [selectedType, setSelectedType] = useState("TODO");
-  const [todoTask, setTodoTask] = useState([]);
-  const [inProgressTask, setInProgressTask] = useState([]);
-  const [doneTask, setDoneTask] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
+
   const [allDailyTasks, setAllDailyTasks] = useState([]);
   const [normalTask, setNormalTask] = useState([]);
 
-  const [repeatTask, setRepeatTask] = useState({
-    dailyTask: [],
-    weeklyTask: [],
-    monthlyTask: [],
-    quarterlyTask: [],
-    yearlyTask: [],
-  });
   const [filteredTask, setFilteredTask] = useState([]);
-
-  const { dailyTask, weeklyTask, monthlyTask, quarterlyTask, yearlyTask } =
-    repeatTask;
 
   useEffect(() => {
     setNormalTask(nTasks.filter((item) => item?.task_frequency === null));
@@ -33,25 +30,32 @@ const Task = ({ nTasks, dTasks, onDelete, onEdit }) => {
 
   console.log(allDailyTasks, normalTask);
 
-  function normalTaskHandler() {
+  const normalTaskHandler = () => {
     setSelectedType("NORMAL");
     setFilteredTask(normalTask);
-  }
+  };
 
-  function dailyTaskHandler() {
+  const dailyTaskHandler = () => {
     setSelectedType("DAILY");
     setFilteredTask(allDailyTasks);
-  }
+  };
+
+  const TodoTaskHandler = () => {
+    onFilter("TODO");
+
+    setFilteredTask(filteredData);
+  };
+
+  const InProgressTaskHandler = () => {
+    onFilter("IN-PROGRESS");
+
+    setFilteredTask(filteredData);
+  };
 
   useEffect(() => {
-    setTodoTask(normalTask.filter((item) => item.status === "TODO"));
-    setInProgressTask(
-      normalTask.filter((item) => item.status === "IN-PROGRESS")
-    );
-    setDoneTask(normalTask.filter((item) => item.status === "DONE"));
-  }, [normalTask]);
-
-  console.log(filteredTask);
+    TodoTaskHandler();
+    InProgressTaskHandler();
+  }, []);
 
   return (
     <>
@@ -65,128 +69,97 @@ const Task = ({ nTasks, dTasks, onDelete, onEdit }) => {
           <Badge caption={allDailyTasks.length} />
         </li>
       </menu>
-      {selectedType !== "" && (
+
+      {selectedType === "NORMAL" ? (
         <menu id="subtabs">
-          {selectedType === "DAILY" && (
-            <>
-              <li>
-                <Button type="dashed" onClick={dailyTaskHandler}>
-                  All
-                </Button>
-              </li>
-            </>
-          )}
           <li>
-            {selectedType === "NORMAL" ? (
-              <Button type="dashed" onClick={normalTaskHandler}>
-                All
-              </Button>
-            ) : (
-              <Button
-                type="dashed"
-                onClick={() => {
-                  setRepeatTask({
-                    dailyTask: dTasks.filter(
-                      (item) => item?.task_frequency === "Daily"
-                    ),
-                  });
-
-                  setFilteredTask(dailyTask);
-                }}
-              >
-                Daily
-              </Button>
-            )}
+            <Button type="dashed" onClick={normalTaskHandler}>
+              All
+            </Button>
           </li>
           <li>
-            {selectedType === "NORMAL" ? (
-              <Button type="dashed" onClick={() => setFilteredTask(todoTask)}>
-                To-Do
-              </Button>
-            ) : (
-              <Button
-                type="dashed"
-                onClick={() => {
-                  setRepeatTask({
-                    weeklyTask: dTasks.filter(
-                      (item) => item?.task_frequency === "weekly"
-                    ),
-                  });
-
-                  setFilteredTask(weeklyTask);
-                }}
-              >
-                Weekly
-              </Button>
-            )}
+            <Button type="dashed" onClick={TodoTaskHandler}>
+              To-Do
+            </Button>
           </li>
-          {selectedType === "DAILY" && (
-            <>
-              <li>
-                <Button
-                  type="dashed"
-                  onClick={() => {
-                    setRepeatTask({
-                      monthlyTask: dTasks.filter(
-                        (item) => item?.task_frequency === "monthly"
-                      ),
-                    });
-
-                    setFilteredTask(monthlyTask);
-                  }}
-                >
-                  Monthly
-                </Button>
-              </li>
-            </>
-          )}
           <li>
-            {selectedType === "NORMAL" ? (
-              <Button
-                type="dashed"
-                onClick={() => setFilteredTask(inProgressTask)}
-              >
-                In-Progress
-              </Button>
-            ) : (
-              <Button
-                type="dashed"
-                onClick={() => {
-                  setRepeatTask({
-                    quarterlyTask: dTasks.filter(
-                      (item) => item?.task_frequency === "Quarterly"
-                    ),
-                  });
-
-                  setFilteredTask(quarterlyTask);
-                }}
-              >
-                Quarterly
-              </Button>
-            )}
+            <Button type="dashed" onClick={InProgressTaskHandler}>
+              In-Progress
+            </Button>
           </li>
-
           <li>
-            {selectedType === "NORMAL" ? (
-              <Button type="dashed" onClick={() => setFilteredTask(doneTask)}>
-                Completed
-              </Button>
-            ) : (
-              <Button
-                type="dashed"
-                onClick={() => {
-                  setRepeatTask({
-                    yearlyTask: dTasks.filter(
-                      (item) => item?.task_frequency === "yearly"
-                    ),
-                  });
-
-                  setFilteredTask(yearlyTask);
-                }}
-              >
-                Yearly
-              </Button>
-            )}
+            <Button
+              type="dashed"
+              onClick={() => {
+                onFilter("DONE");
+                setFilteredTask(filteredData);
+              }}
+            >
+              Completed
+            </Button>
+          </li>
+        </menu>
+      ) : (
+        <menu id="subtabs">
+          <li>
+            <Button type="dashed" onClick={dailyTaskHandler}>
+              All
+            </Button>
+          </li>
+          <li>
+            <Button
+              type="dashed"
+              onClick={() => {
+                onDailyFilter("Daily");
+                setFilteredTask(dailyFilteredData);
+              }}
+            >
+              Daily
+            </Button>
+          </li>
+          <li>
+            <Button
+              type="dashed"
+              onClick={() => {
+                onDailyFilter("weekly");
+                setFilteredTask(dailyFilteredData);
+              }}
+            >
+              Weekly
+            </Button>
+          </li>
+          <li>
+            <Button
+              type="dashed"
+              onClick={() => {
+                onDailyFilter("monthly");
+                setFilteredTask(dailyFilteredData);
+              }}
+            >
+              Monthly
+            </Button>
+          </li>
+          <li>
+            <Button
+              type="dashed"
+              onClick={() => {
+                onDailyFilter("Quarterly");
+                setFilteredTask(dailyFilteredData);
+              }}
+            >
+              Quarterly
+            </Button>
+          </li>
+          <li>
+            <Button
+              type="dashed"
+              onClick={() => {
+                onDailyFilter("yearly");
+                setFilteredTask(dailyFilteredData);
+              }}
+            >
+              Yearly
+            </Button>
           </li>
         </menu>
       )}
