@@ -31,6 +31,10 @@ body::-webkit-scrollbar {
 
 }
 
+span .ant-select-selection-item {
+  padding: 0;
+}
+
 .container {
   background-color: white;
   border-radius: 10px;
@@ -49,7 +53,6 @@ body::-webkit-scrollbar {
   color: #292929;
 }
 
-
 .badge {
   margin-left: 0.5rem;
   padding: 0.25rem 0.5rem;
@@ -63,6 +66,7 @@ body::-webkit-scrollbar {
   width: 100%;
   display: flex;
   padding: 0;
+
 }
 
 #tabs li {
@@ -70,6 +74,7 @@ body::-webkit-scrollbar {
   list-style-type: none;
   display: flex;
   align-items: center;
+  justify-content: center;
 
 }
 
@@ -78,6 +83,23 @@ body::-webkit-scrollbar {
   border: none;
 }
 
-span {
-  height: 2vh;
+#subtabs {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  justify-content: space-evenly;
+
 }
+
+#subtabs li {
+
+  width: auto;
+  list-style-type: none;
+
+
+}
+
+
+/* span {
+  height: 2vh;
+} */
