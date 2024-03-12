@@ -58,6 +58,10 @@ export const Home = () => {
 
   const [refresh, setRefresh] = useState(false);
 
+  const [filteredData, setFilteredData] = useState([]);
+
+  const [dailyFilteredData, setDailyFilteredData] = useState([]);
+
   const [form] = Form.useForm();
 
   const navigate = useNavigate();
@@ -209,7 +213,7 @@ export const Home = () => {
         id: item.id,
       });
 
-      API.sendRequest(
+      await API.sendRequest(
         DELETE_API,
         (res) => {
           console.log(res);
@@ -225,7 +229,7 @@ export const Home = () => {
         id: item.id,
       });
 
-      API.sendRequest(
+      await API.sendRequest(
         DELETE_API,
         (res) => {
           console.log(res);
@@ -236,6 +240,44 @@ export const Home = () => {
         {},
         "Daily Task Deleted successfully"
       );
+    }
+  };
+
+  const NormalTaskFilter = async (props) => {
+    console.log(props);
+
+    try {
+      const FILTER_API = apiGenerator(CONSTANTS.API.todo.filter, {
+        statusType: props,
+      });
+      await API.sendRequest(FILTER_API, (res) => {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
+        console.log(res.data);
+        setFilteredData(res.data);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const dailyTaskFilter = async (props) => {
+    console.log(props);
+
+    try {
+      const FILTER_API = apiGenerator(CONSTANTS.API.repeatTodo.filter, {
+        taskType: props,
+      });
+      await API.sendRequest(FILTER_API, (res) => {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
+        console.log(res.data);
+        setDailyFilteredData(res.data);
+      });
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -459,6 +501,10 @@ export const Home = () => {
             dTasks={dailyTodos}
             onDelete={deleteTask}
             onEdit={editTask}
+            onFilter={NormalTaskFilter}
+            onDailyFilter={dailyTaskFilter}
+            filteredData={filteredData}
+            dailyFilteredData={dailyFilteredData}
           />
         )}
       </div>
