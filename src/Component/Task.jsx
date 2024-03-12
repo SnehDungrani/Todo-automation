@@ -1,63 +1,198 @@
+import React, { useEffect, useState } from "react";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
 import { Alert, Avatar, Button, List, Popconfirm } from "antd";
 import { GrDatabase } from "react-icons/gr";
 import Badge from "./Badge";
 
-const Task = ({ tasks, onDelete, onEdit }) => {
-  console.log(tasks);
+const Task = ({ nTasks, dTasks, onDelete, onEdit }) => {
+  console.log(nTasks, dTasks);
   const [selectedType, setSelectedType] = useState("TODO");
   const [todoTask, setTodoTask] = useState([]);
   const [inProgressTask, setInProgressTask] = useState([]);
-  const [dailyTasks, setDailyTasks] = useState([]);
   const [doneTask, setDoneTask] = useState([]);
+  const [allDailyTasks, setAllDailyTasks] = useState([]);
+  const [normalTask, setNormalTask] = useState([]);
+
+  const [repeatTask, setRepeatTask] = useState({
+    dailyTask: [],
+    weeklyTask: [],
+    monthlyTask: [],
+    quarterlyTask: [],
+    yearlyTask: [],
+  });
+  const [filteredTask, setFilteredTask] = useState([]);
+
+  const { dailyTask, weeklyTask, monthlyTask, quarterlyTask, yearlyTask } =
+    repeatTask;
 
   useEffect(() => {
-    setTodoTask(tasks.filter((item) => item.status === "TODO"));
-    setInProgressTask(tasks.filter((item) => item.status === "IN-PROGRESS"));
-    setDailyTasks(tasks.filter((item) => item.status === "DAILY"));
-    setDoneTask(tasks.filter((item) => item.status === "DONE"));
-  }, [tasks]);
+    setNormalTask(nTasks.filter((item) => item?.task_frequency === null));
+    setAllDailyTasks(dTasks.filter((item) => item?.task_frequency !== null));
+  }, [nTasks, dTasks]);
 
-  let filteredTasks;
+  console.log(allDailyTasks, normalTask);
 
-  if (selectedType === "TODO") {
-    filteredTasks = todoTask;
-  } else if (selectedType === "IN-PROGRESS") {
-    filteredTasks = inProgressTask;
-  } else if (selectedType === "DAILY") {
-    filteredTasks = dailyTasks;
-  } else if (selectedType === "DONE") {
-    filteredTasks = doneTask;
+  function normalTaskHandler() {
+    setSelectedType("NORMAL");
+    setFilteredTask(normalTask);
   }
+
+  function dailyTaskHandler() {
+    setSelectedType("DAILY");
+    setFilteredTask(allDailyTasks);
+  }
+
+  useEffect(() => {
+    setTodoTask(normalTask.filter((item) => item.status === "TODO"));
+    setInProgressTask(
+      normalTask.filter((item) => item.status === "IN-PROGRESS")
+    );
+    setDoneTask(normalTask.filter((item) => item.status === "DONE"));
+  }, [normalTask]);
+
+  console.log(filteredTask);
 
   return (
     <>
       <menu id="tabs">
         <li>
-          <Button onClick={() => setSelectedType("TODO")}>Todos</Button>
-          <Badge caption={todoTask.length} />
+          <Button onClick={normalTaskHandler}>Normal Task</Button>
+          <Badge caption={normalTask.length} />
         </li>
         <li>
-          <Button onClick={() => setSelectedType("IN-PROGRESS")}>
-            Current Todos
-          </Button>
-          <Badge caption={inProgressTask.length} />
-        </li>
-        <li>
-          <Button onClick={() => setSelectedType("DAILY")}>Daily Todos</Button>
-          <Badge caption={dailyTasks.length} />
-        </li>
-
-        <li>
-          <Button onClick={() => setSelectedType("DONE")}>Completed</Button>
-          <Badge caption={doneTask.length} />
+          <Button onClick={dailyTaskHandler}>Daily Task</Button>
+          <Badge caption={allDailyTasks.length} />
         </li>
       </menu>
+      {selectedType !== "" && (
+        <menu id="subtabs">
+          {selectedType === "DAILY" && (
+            <>
+              <li>
+                <Button type="dashed" onClick={dailyTaskHandler}>
+                  All
+                </Button>
+              </li>
+            </>
+          )}
+          <li>
+            {selectedType === "NORMAL" ? (
+              <Button type="dashed" onClick={normalTaskHandler}>
+                All
+              </Button>
+            ) : (
+              <Button
+                type="dashed"
+                onClick={() => {
+                  setRepeatTask({
+                    dailyTask: dTasks.filter(
+                      (item) => item?.task_frequency === "Daily"
+                    ),
+                  });
 
-      <List itemLayout="horizontal" dataSource={filteredTasks}>
-        {filteredTasks.length <= 0 ? (
+                  setFilteredTask(dailyTask);
+                }}
+              >
+                Daily
+              </Button>
+            )}
+          </li>
+          <li>
+            {selectedType === "NORMAL" ? (
+              <Button type="dashed" onClick={() => setFilteredTask(todoTask)}>
+                To-Do
+              </Button>
+            ) : (
+              <Button
+                type="dashed"
+                onClick={() => {
+                  setRepeatTask({
+                    weeklyTask: dTasks.filter(
+                      (item) => item?.task_frequency === "weekly"
+                    ),
+                  });
+
+                  setFilteredTask(weeklyTask);
+                }}
+              >
+                Weekly
+              </Button>
+            )}
+          </li>
+          {selectedType === "DAILY" && (
+            <>
+              <li>
+                <Button
+                  type="dashed"
+                  onClick={() => {
+                    setRepeatTask({
+                      monthlyTask: dTasks.filter(
+                        (item) => item?.task_frequency === "monthly"
+                      ),
+                    });
+
+                    setFilteredTask(monthlyTask);
+                  }}
+                >
+                  Monthly
+                </Button>
+              </li>
+            </>
+          )}
+          <li>
+            {selectedType === "NORMAL" ? (
+              <Button
+                type="dashed"
+                onClick={() => setFilteredTask(inProgressTask)}
+              >
+                In-Progress
+              </Button>
+            ) : (
+              <Button
+                type="dashed"
+                onClick={() => {
+                  setRepeatTask({
+                    quarterlyTask: dTasks.filter(
+                      (item) => item?.task_frequency === "Quarterly"
+                    ),
+                  });
+
+                  setFilteredTask(quarterlyTask);
+                }}
+              >
+                Quarterly
+              </Button>
+            )}
+          </li>
+
+          <li>
+            {selectedType === "NORMAL" ? (
+              <Button type="dashed" onClick={() => setFilteredTask(doneTask)}>
+                Completed
+              </Button>
+            ) : (
+              <Button
+                type="dashed"
+                onClick={() => {
+                  setRepeatTask({
+                    yearlyTask: dTasks.filter(
+                      (item) => item?.task_frequency === "yearly"
+                    ),
+                  });
+
+                  setFilteredTask(yearlyTask);
+                }}
+              >
+                Yearly
+              </Button>
+            )}
+          </li>
+        </menu>
+      )}
+
+      <List itemLayout="horizontal" dataSource={filteredTask}>
+        {filteredTask?.length <= 0 ? (
           <Alert
             type="info"
             message={
@@ -73,7 +208,7 @@ const Task = ({ tasks, onDelete, onEdit }) => {
             }}
           ></Alert>
         ) : (
-          filteredTasks.map((item, index) => (
+          filteredTask?.map((item, index) => (
             <List.Item
               key={item.id}
               style={{
@@ -121,7 +256,7 @@ const Task = ({ tasks, onDelete, onEdit }) => {
                 }
                 cancelText="No"
                 okText="Yes"
-                onConfirm={() => onDelete(item)}
+                onConfirm={() => onDelete(item, selectedType)}
               >
                 <DeleteOutlined
                   style={{ color: "#FF0000", fontSize: "25px" }}
