@@ -1,4 +1,3 @@
-// import React, { useState } from "react";
 import { Button, Card, Input, Form, Spin, Modal } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,8 +16,6 @@ const Login = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [modal, contextHolder] = Modal.useModal();
-
-  const [isRes, setIsRes] = useState();
 
   const countDown = () => {
     let secondsToGo = 5;
@@ -44,22 +41,17 @@ const Login = () => {
           (res) => {
             console.log(res);
 
+            setAuthDetails(res.tokens.token, res.data.user.name);
             if (res.status === "success") {
+              setIsLoading((pr) => !pr);
               navigate("/home");
             }
 
-            setAuthDetails(res.tokens.token);
-
-            setIsRes(res);
             window.location.reload();
           },
           value,
           "Login Successfully"
         );
-
-        if (isRes.status === "success") {
-          setIsLoading((pr) => !pr);
-        }
       })
       .catch((err) => {
         // countDown();
