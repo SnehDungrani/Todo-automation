@@ -29,7 +29,6 @@ const Task = ({
   const [allDailyTasks, setAllDailyTasks] = useState([]);
   const [normalTask, setNormalTask] = useState([]);
   const [isSelect, setIsSelect] = useState(false);
-  const [checked, setChecked] = useState(true);
   const API = useHttp();
 
   useEffect(() => {
@@ -72,65 +71,56 @@ const Task = ({
     dailyTaskHandler();
   }, []);
 
-  const idHandler = useCallback(
-    function idHandler(item) {
-      setIsSelect(true);
-      console.log(checked);
-      // setChecked(!checked);
-
-      setMultipleId((previous) => ({
-        ...previous,
-        [item.id]: !checked,
-      }));
-
-      console.log(multipleId);
-    },
-    [checked]
-  );
+  const idHandler = useCallback(function idHandler(item) {
+    setIsSelect(true);
+    setMultipleId((previous) => {
+      const updatedId = !previous[item.id];
+      return { ...previous, [item.id]: updatedId };
+    });
+  }, []);
 
   const multipleDeleteHandler = async () => {
-    const multipleTask = Object.fromEntries(
-      Object.entries(multipleId).filter(([, val]) => val === true)
+    const selectedTaskIds = Object.keys(multipleId).filter(
+      (key) => multipleId[key]
     );
+    const finalTaskIds = selectedTaskIds.join(",");
 
-    const finalTaskIds = Object.keys(multipleTask).join("");
-
-    console.log(finalTaskIds);
-
-    if (selectedType === "NORMAL") {
-      const DELETE_API = apiGenerator(CONSTANTS.API.todo.bulkDelete, {
-        id: finalTaskIds,
-      });
-
-      await API.sendRequest(
-        DELETE_API,
-        (res) => {
-          console.log(res);
-          if (res?.status === "success") {
-            setLoading((pr) => !pr);
-            window.location.reload();
-          }
-        },
-        {},
-        "Normal Multiple Task Deleted successfully"
-      );
+    if (finalTaskIds) {
+      if (selectedType === "NORMAL") {
+        const DELETE_API = apiGenerator(CONSTANTS.API.todo.bulkDelete, {
+          id: finalTaskIds,
+        });
+        await API.sendRequest(
+          DELETE_API,
+          (res) => {
+            console.log(res);
+            if (res?.status === "success") {
+              setLoading((pr) => !pr);
+              window.location.reload();
+            }
+          },
+          {},
+          "Normal Multiple Task Deleted successfully"
+        );
+      } else {
+        const DELETE_API = apiGenerator(CONSTANTS.API.repeatTodo.bulkDelete, {
+          id: finalTaskIds,
+        });
+        await API.sendRequest(
+          DELETE_API,
+          (res) => {
+            console.log(res);
+            if (res?.status === "success") {
+              setLoading((pr) => !pr);
+              window.location.reload();
+            }
+          },
+          {},
+          "Daily Multiple Task Deleted successfully"
+        );
+      }
     } else {
-      const DELETE_API = apiGenerator(CONSTANTS.API.repeatTodo.bulkDelete, {
-        id: finalTaskIds,
-      });
-
-      await API.sendRequest(
-        DELETE_API,
-        (res) => {
-          console.log(res);
-          if (res?.status === "success") {
-            setLoading((pr) => !pr);
-            window.location.reload();
-          }
-        },
-        {},
-        "Daily Multiple Task Deleted successfully"
-      );
+      console.log("No tasks selected for deletion.");
     }
   };
 
@@ -341,7 +331,6 @@ const Task = ({
                   style={{ width: "1.7rem", scale: "1.5" }}
                   onChange={(e) => {
                     idHandler(item);
-                    setChecked(e.target.checked);
                   }}
                 ></Checkbox>
 
