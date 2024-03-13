@@ -1,6 +1,6 @@
 import { Button, Card, Input, Form, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
 import CONSTANTS from "../util/constant/CONSTANTS";
 
@@ -8,10 +8,16 @@ import useHttp from "../Hooks/use-http";
 import { setAuthDetails } from "../util/API/authStorage";
 
 const Login = () => {
+  const token = localStorage.getItem("token");
+
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   const API = useHttp();
+
+  if (token) {
+    return <Navigate to="/home" />;
+  }
 
   const loginHandler = () => {
     form
@@ -42,126 +48,102 @@ const Login = () => {
   };
 
   return (
-    <div gap="middle" wrap="wrap">
-      <div
+    <div
+      style={{
+        boxSizing: "border-box",
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Card
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "8%",
+          maxWidth: "330px",
+          width: "100%",
+          padding: "20px",
+          boxSizing: "border-box",
         }}
       >
-        <Card
-          style={{
-            width: "450px",
-            height: "450px",
-          }}
-        >
-          <h1 style={{ textAlign: "center" }}>Login</h1>
-          <br />
+        <h1 style={{ textAlign: "center" }}>Login</h1>
+        <br />
 
-          <Form form={form}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
+        <Form form={form}>
+          <div>
+            <Form.Item
+              name="email"
+              rules={[
+                {
+                  type: "email",
+                  message: "The input is not a valid E-mail!",
+                },
+                {
+                  required: true,
+                  message: "Please input your E-mail!",
+                },
+              ]}
             >
-              <Form.Item
-                id="email"
-                name="email"
-                rules={[
-                  {
-                    type: "email",
-                    message: "The input is not valid E-mail!",
-                  },
-                  {
-                    required: true,
-                    message: "Please input your E-mail!",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Email"
-                  id="email"
-                  name="email"
-                  type="email"
-                  prefix={<UserOutlined />}
-                  style={{
-                    width: "310px",
-                    height: "35px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                />
-              </Form.Item>
-              <Form.Item
-                id="password"
-                name="password"
-                rules={[
-                  {
-                    type: "password",
-                    message: "The input is not valid Password!",
-                  },
-                  {
-                    required: true,
-                    message: "Please input your Password!",
-                  },
-                  {
-                    min: 8,
-                    message: "Password must have a minimum length of 8",
-                  },
-                ]}
-              >
-                <Input.Password
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  prefix={<SiGnuprivacyguard />}
-                  style={{
-                    width: "310px",
-                    height: "35px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                />
-              </Form.Item>
-              <br />
-              {API.isLoading ? (
-                <Spin />
-              ) : (
-                <Button
-                  type="primary"
-                  shape="round"
-                  icon={<LoginOutlined />}
-                  style={{ width: "10vw" }}
-                  onClick={loginHandler}
-                  htmlType="submit"
-                >
-                  Login
-                </Button>
-              )}
-              <br />
-              Don't have an account?
-              <br />
-              <br />
+              <Input
+                placeholder="Email"
+                prefix={<UserOutlined />}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Password!",
+                },
+                {
+                  min: 8,
+                  message: "Password must have a minimum length of 8",
+                },
+              ]}
+            >
+              <Input.Password
+                placeholder="Password"
+                prefix={<SiGnuprivacyguard />}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+            <br />
+            {API.isLoading ? (
+              <Spin
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              />
+            ) : (
               <Button
                 type="primary"
                 shape="round"
                 icon={<LoginOutlined />}
-                style={{ width: "10vw" }}
+                style={{ width: "100%" }}
+                onClick={loginHandler}
+                htmlType="submit"
               >
+                Login
+              </Button>
+            )}
+            <br />
+            <br />
+            <div style={{ textAlign: "center", marginTop: "10px" }}>
+              Don't have an account?
+              <br />
+              <Button type="link" style={{ padding: 0 }}>
                 <Link to="/signup">SignUp</Link>
               </Button>
             </div>
-          </Form>
+          </div>
+        </Form>
 
-          <br />
-          <br />
-        </Card>
-      </div>
+        <br />
+        <br />
+      </Card>
     </div>
   );
 };
