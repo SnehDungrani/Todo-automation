@@ -43,11 +43,7 @@ const layoutStyle = {
   maxWidth: "calc(100%)",
 };
 
-// const { TextArea } = Input;
-
 export const Home = () => {
-  // const [tasks, setTasks] = useState([]);
-
   const [normalTodos, setNormalTodos] = useState([]);
   const [dailyTodos, setDailyTodos] = useState([]);
   const [tempId, setTempId] = useState("");
@@ -68,9 +64,6 @@ export const Home = () => {
 
   const navigate = useNavigate();
   const API = useHttp();
-  // const val = localStorage.getItem("user");
-  // var object = JSON.parse(val);
-  // const path = object.uid;
 
   useEffect(() => {
     //fetch
