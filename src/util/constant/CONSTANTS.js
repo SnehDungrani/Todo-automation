@@ -13,13 +13,17 @@ const CONSTANTS = {
         type: "PATCH",
         endpoint: `/tasks/:id`,
       },
+      filter: {
+        type: "GET",
+        endpoint: `/tasks?status=:statusType`,
+      },
       delete: {
         type: "DELETE",
         endpoint: `/tasks/:id`,
       },
-      filter: {
-        type: "GET",
-        endpoint: `/tasks?status=:statusType`,
+      bulkDelete: {
+        type: "DELETE",
+        endpoint: "/tasks/bulkDelete/:id",
       },
     },
 
@@ -36,13 +40,18 @@ const CONSTANTS = {
         type: "PATCH",
         endpoint: `/repeatTasks/:id`,
       },
+
+      filter: {
+        type: "GET",
+        endpoint: `/repeatTasks?task_frequency=:taskType`,
+      },
       delete: {
         type: "DELETE",
         endpoint: `/repeatTasks/:id`,
       },
-      filter: {
-        type: "GET",
-        endpoint: `/repeatTasks?task_frequency=:taskType`,
+      bulkDelete: {
+        type: "DELETE",
+        endpoint: "/repeatTasks/bulkDelete/:id",
       },
     },
 
