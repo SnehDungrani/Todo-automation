@@ -1,8 +1,7 @@
-import { Button, Card, Input, Form, Spin, Modal } from "antd";
+import { Button, Card, Input, Form, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
-import { useState } from "react";
 import CONSTANTS from "../util/constant/CONSTANTS";
 
 import useHttp from "../Hooks/use-http";
@@ -14,27 +13,11 @@ const Login = () => {
 
   const API = useHttp();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [modal, contextHolder] = Modal.useModal();
-
-  const countDown = () => {
-    let secondsToGo = 5;
-    const instance = modal.error({
-      title: "Authentication Failed!",
-      content: `Please use correct Email and Password.`,
-    });
-
-    setTimeout(() => {
-      instance.destroy();
-    }, secondsToGo * 1000);
-  };
-
   const loginHandler = () => {
     form
       .validateFields()
       .then(async (value) => {
         console.log(value);
-        setIsLoading((pr) => !pr);
 
         API.sendRequest(
           CONSTANTS.API.auth.login,
@@ -43,7 +26,6 @@ const Login = () => {
 
             setAuthDetails(res.tokens.token, res.data.user.name);
             if (res.status === "success") {
-              setIsLoading((pr) => !pr);
               navigate("/home");
             }
 
@@ -54,12 +36,8 @@ const Login = () => {
         );
       })
       .catch((err) => {
-        // countDown();
         console.log(err);
         form.resetFields();
-        setTimeout(() => {
-          setIsLoading((pr) => !pr);
-        }, 2000);
       });
   };
 
@@ -82,7 +60,6 @@ const Login = () => {
           <h1 style={{ textAlign: "center" }}>Login</h1>
           <br />
 
-          {contextHolder}
           <Form form={form}>
             <div
               style={{
@@ -152,7 +129,7 @@ const Login = () => {
                 />
               </Form.Item>
               <br />
-              {isLoading ? (
+              {API.isLoading ? (
                 <Spin />
               ) : (
                 <Button

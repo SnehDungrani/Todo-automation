@@ -11,7 +11,6 @@ import CONSTANTS from "../util/constant/CONSTANTS";
 const SignUp = () => {
   const [form] = Form.useForm();
   const [isRes, setIsRes] = useState();
-  const [isLoading, setIsLoading] = useState();
   const navigate = useNavigate();
 
   const API = useHttp();
@@ -21,7 +20,6 @@ const SignUp = () => {
       .validateFields()
       .then(async (value) => {
         console.log(value);
-        setIsLoading((pr) => !pr);
 
         const userDetail = {
           name: value.name,
@@ -40,16 +38,12 @@ const SignUp = () => {
         );
 
         if (isRes.status === "success") {
-          setIsLoading((pr) => !pr);
           navigate("/login");
         }
       })
       .catch((err) => {
         console.log(err);
         form.resetFields();
-        setTimeout(() => {
-          setIsLoading((pr) => !pr);
-        }, 2000);
       });
   };
 
@@ -214,7 +208,7 @@ const SignUp = () => {
               >
                 <Checkbox>I have read the agreement</Checkbox>
               </Form.Item>
-              {isLoading ? (
+              {API.isLoading ? (
                 <Spin />
               ) : (
                 <Button
