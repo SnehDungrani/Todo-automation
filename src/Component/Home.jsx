@@ -6,7 +6,6 @@ import {
   Input,
   Layout,
   Modal,
-  Popconfirm,
   Radio,
   Select,
   Space,
@@ -24,7 +23,7 @@ import useHttp from "../Hooks/use-http";
 import CONSTANTS from "../util/constant/CONSTANTS";
 import { apiGenerator } from "../util/functions";
 import { deleteAuthDetails } from "../util/API/authStorage";
-import { DownOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { DownOutlined } from "@ant-design/icons";
 import { Option } from "antd/es/mentions";
 
 const headerStyle = {
@@ -34,6 +33,9 @@ const headerStyle = {
   paddingInline: 48,
   lineHeight: "64px",
   backgroundColor: "#8458b3",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
 };
 const layoutStyle = {
   overflow: "hidden",
@@ -75,13 +77,9 @@ export const Home = () => {
 
     const fetchTask = () => {
       setIsLoading(true);
-      console.log(tempId);
 
       API.sendRequest(CONSTANTS.API.todo.get, (res) => {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
-        console.log(res.data);
+        setIsLoading(false);
 
         setNormalTodos(res.data);
       });
@@ -98,11 +96,10 @@ export const Home = () => {
       console.log(tempId);
 
       API.sendRequest(CONSTANTS.API.repeatTodo.get, (res) => {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
-        console.log(res.data);
+        setIsLoading(false);
         setDailyTodos(res.data);
+
+        console.log(res.data);
       });
     };
 
@@ -110,7 +107,6 @@ export const Home = () => {
   }, [refresh, tempId]);
 
   const submitHandler = (e) => {
-    console.log(defaultData);
     e.preventDefault();
 
     form
@@ -251,10 +247,6 @@ export const Home = () => {
         statusType: props,
       });
       await API.sendRequest(FILTER_API, (res) => {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
-        console.log(res.data);
         setFilteredData(res.data);
       });
     } catch (err) {
@@ -270,9 +262,6 @@ export const Home = () => {
         taskType: props,
       });
       await API.sendRequest(FILTER_API, (res) => {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
         console.log(res.data);
         setDailyFilteredData(res.data);
       });
@@ -303,11 +292,15 @@ export const Home = () => {
     <>
       <Layout style={layoutStyle}>
         <Header style={headerStyle}>
+          <div>
+            <p style={{ fontSize: "30PX", fontWeight: "500" }}>TO-DO</p>
+          </div>
           <Dropdown
             menu={{
               items: [
                 {
-                  label: <a href="https://www.antgroup.com">Hello,</a>,
+                  label: <p>Hello, {localStorage.getItem("name")}</p>,
+                  style: { textAlign: "center", padding: "0" },
                   key: "0",
                 },
 
@@ -317,28 +310,14 @@ export const Home = () => {
                 {
                   label: (
                     <Tooltip placement="bottom" title="Logout" color="#23355d">
-                      <Popconfirm
-                        title="Delete the task"
-                        description="Are you sure to delete this task?"
-                        icon={
-                          <QuestionCircleOutlined
-                            style={{
-                              color: "red",
-                            }}
-                          />
-                        }
-                        cancelText="No"
-                        okText="Yes"
-                        onConfirm={handleLogout}
+                      <Button
+                        style={{ display: "flex", alignItems: "center" }}
+                        onClick={handleLogout}
                       >
-                        <Button
-                          style={{ display: "flex", alignItems: "center" }}
-                        >
-                          Logout
-                          <span>&nbsp;</span>
-                          <AiOutlineLogout />
-                        </Button>
-                      </Popconfirm>
+                        Logout
+                        <span>&nbsp;</span>
+                        <AiOutlineLogout />
+                      </Button>
                     </Tooltip>
                   ),
                   key: "2",
@@ -348,7 +327,7 @@ export const Home = () => {
             trigger={["click"]}
           >
             <a onClick={(e) => e.preventDefault()}>
-              <Space>
+              <Space style={{ color: "white" }}>
                 Profile
                 <DownOutlined />
               </Space>
@@ -357,7 +336,7 @@ export const Home = () => {
         </Header>
       </Layout>
       <div className="container ">
-        <h1>Daily Task</h1>
+        <h1>Tasks</h1>
         <div
           className="btn-main"
           style={{
