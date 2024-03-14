@@ -28,13 +28,17 @@ import Task from "./Task";
 
 const headerStyle = {
   textAlign: "right",
+  width: "100%",
   color: "#fff",
   height: 64,
   paddingInline: 48,
   lineHeight: "64px",
-  backgroundColor: "#8458b3",
+  backgroundColor: "#8458b3a4",
   display: "flex",
   alignItems: "center",
+  position: "fixed",
+  zIndex: "1",
+  backdropFilter: "blur(10px)",
   justifyContent: "space-between",
 };
 
