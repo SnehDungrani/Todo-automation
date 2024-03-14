@@ -13,7 +13,6 @@ import {
   Tooltip,
   notification,
 } from "antd";
-import Task from "./Task";
 import { Header } from "antd/es/layout/layout";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineLogout } from "react-icons/ai";
@@ -25,6 +24,7 @@ import { apiGenerator } from "../util/functions";
 import { deleteAuthDetails } from "../util/API/authStorage";
 import { DownOutlined } from "@ant-design/icons";
 import { Option } from "antd/es/mentions";
+import Task from "./Task";
 
 const headerStyle = {
   textAlign: "right",
@@ -37,10 +37,10 @@ const headerStyle = {
   alignItems: "center",
   justifyContent: "space-between",
 };
+
 const layoutStyle = {
   overflow: "hidden",
-  width: "calc(100%)",
-  maxWidth: "calc(100%)",
+  width: "100%",
 };
 
 export const Home = () => {
@@ -66,14 +66,11 @@ export const Home = () => {
   const API = useHttp();
 
   useEffect(() => {
-    //fetch
-
     const fetchTask = () => {
       setIsLoading(true);
 
       API.sendRequest(CONSTANTS.API.todo.get, (res) => {
         setIsLoading(false);
-
         setNormalTodos(res.data);
       });
     };
@@ -82,17 +79,12 @@ export const Home = () => {
   }, [refresh, tempId]);
 
   useEffect(() => {
-    //repeat fetch
-
     const fetchTask = () => {
       setIsLoading(true);
-      console.log(tempId);
 
       API.sendRequest(CONSTANTS.API.repeatTodo.get, (res) => {
         setIsLoading(false);
         setDailyTodos(res.data);
-
-        console.log(res.data);
       });
     };
 
@@ -105,12 +97,9 @@ export const Home = () => {
     form
       .validateFields()
       .then(async (value) => {
-        console.log(value);
         if (value !== null) {
           if (defaultData !== null) {
             try {
-              //update
-
               if (defaultData.task_frequency === null) {
                 const UPDATE_API = apiGenerator(CONSTANTS.API.todo.update, {
                   id: tempId,
@@ -118,7 +107,6 @@ export const Home = () => {
 
                 API.sendRequest(
                   UPDATE_API,
-
                   (res) => {
                     if (res?.status === "success") {
                       setRefresh((pr) => !pr);
@@ -137,7 +125,6 @@ export const Home = () => {
 
                 API.sendRequest(
                   UPDATE_API,
-
                   (res) => {
                     if (res?.status === "success") {
                       setRefresh((pr) => !pr);
@@ -151,13 +138,10 @@ export const Home = () => {
               console.error(err);
             }
           } else {
-            //store
-
             if (isDaily) {
               API.sendRequest(
                 CONSTANTS.API.repeatTodo.add,
                 (res) => {
-                  console.log(res);
                   if (res?.status === "success") {
                     setRefresh((pr) => !pr);
                   }
@@ -169,7 +153,6 @@ export const Home = () => {
               API.sendRequest(
                 CONSTANTS.API.todo.add,
                 (res) => {
-                  console.log(res);
                   if (res?.status === "success") {
                     setRefresh((pr) => !pr);
                   }
@@ -192,7 +175,6 @@ export const Home = () => {
     setIsModalOpen((pr) => !pr);
     form.setFieldsValue(item);
     setDefaultDataSet(item);
-
     setTempId(item.id);
   };
 
@@ -205,7 +187,6 @@ export const Home = () => {
       await API.sendRequest(
         DELETE_API,
         (res) => {
-          console.log(res);
           if (res?.status === "success") {
             setRefresh((pr) => !pr);
           }
@@ -221,7 +202,6 @@ export const Home = () => {
       await API.sendRequest(
         DELETE_API,
         (res) => {
-          console.log(res);
           if (res?.status === "success") {
             setRefresh((pr) => !pr);
           }
@@ -233,8 +213,6 @@ export const Home = () => {
   };
 
   const NormalTaskFilter = async (props) => {
-    console.log(props);
-
     try {
       const FILTER_API = apiGenerator(CONSTANTS.API.todo.filter, {
         statusType: props,
@@ -248,14 +226,11 @@ export const Home = () => {
   };
 
   const dailyTaskFilter = async (props) => {
-    console.log(props);
-
     try {
       const FILTER_API = apiGenerator(CONSTANTS.API.repeatTodo.filter, {
         taskType: props,
       });
       await API.sendRequest(FILTER_API, (res) => {
-        console.log(res.data);
         setDailyFilteredData(res.data);
       });
     } catch (err) {
@@ -296,7 +271,6 @@ export const Home = () => {
                   style: { textAlign: "center", padding: "0" },
                   key: "0",
                 },
-
                 {
                   type: "divider",
                 },
@@ -330,12 +304,7 @@ export const Home = () => {
       </Layout>
       <div className="container ">
         <h1>Tasks</h1>
-        <div
-          className="btn-main"
-          style={{
-            width: "100%",
-          }}
-        >
+        <div className="btn-main" style={{ width: "100%" }}>
           <Button
             type="dashed"
             block
@@ -458,7 +427,6 @@ export const Home = () => {
         </Modal>
         <br />
         <br />
-
         {isLoading ? (
           <Spin
             style={{
