@@ -40,11 +40,11 @@ span .ant-select-selection-item {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: auto;
-  padding: 40px;
+  padding: 2em;
   width: 88%;
   max-width: 650px;
   box-sizing: border-box;
-  margin-top: 30px;
+  margin-top: 10%;
 }
 
 .container h1 {
@@ -95,4 +95,19 @@ span .ant-select-selection-item {
   width: auto;
   list-style-type: none;
 
+}
+
+
+@media screen and (max-width: 430px) {
+  .container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    padding: 2em;
+    width: 88%;
+    max-width: 650px;
+    box-sizing: border-box;
+    margin-top: 25%;
+  }
 }
