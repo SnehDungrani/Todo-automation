@@ -41,7 +41,7 @@ span .ant-select-selection-item {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: auto;
   padding: 40px;
-  width: 80%;
+  width: 88%;
   max-width: 650px;
   box-sizing: border-box;
   margin-top: 30px;
@@ -87,19 +87,12 @@ span .ant-select-selection-item {
   width: 100%;
   padding: 0;
   display: flex;
-  justify-content: space-evenly;
-
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 #subtabs li {
-
   width: auto;
   list-style-type: none;
 
-
 }
-
-
-/* span {
-  height: 2vh;
-} */
