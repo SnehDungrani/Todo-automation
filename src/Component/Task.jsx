@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   QuestionCircleOutlined,
   EditOutlined,
@@ -17,9 +17,9 @@ const Task = ({
   onDelete,
   onEdit,
   onFilter,
-  filteredData,
   onDailyFilter,
-  dailyFilteredData,
+  // filteredData,
+  // dailyFilteredData,
 }) => {
   const [selectedType, setSelectedType] = useState("");
   const [filteredTask, setFilteredTask] = useState([]);
@@ -29,6 +29,8 @@ const Task = ({
   const [allDailyTasks, setAllDailyTasks] = useState([]);
   const [normalTask, setNormalTask] = useState([]);
   const [isSelect, setIsSelect] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+
   const API = useHttp();
 
   useEffect(() => {
@@ -40,31 +42,11 @@ const Task = ({
     setAllDailyTasks(dTasks.filter((item) => item?.task_frequency !== null));
   }, [nTasks, dTasks]);
 
+  const filterAllTasks = selectedType === "NORMAL" ? normalTask : allDailyTasks;
+
   useEffect(() => {
-    if (selectedType === "NORMAL") {
-      setFilteredTask(filteredData);
-    } else if (selectedType === "DAILY") {
-      setFilteredTask(dailyFilteredData);
-    }
-  }, [selectedType, filteredData, dailyFilteredData]);
-
-  const normalTaskHandler = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-    setSelectedType("NORMAL");
-    setFilteredTask(normalTask);
-  };
-
-  const dailyTaskHandler = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-    setSelectedType("DAILY");
-    setFilteredTask(allDailyTasks);
-  };
+    setFilteredTask(filterAllTasks);
+  }, [filterAllTasks]);
 
   const idHandler = useCallback(function idHandler(item) {
     setIsSelect(true);
@@ -73,6 +55,10 @@ const Task = ({
       return { ...prev, [item.id]: updatedId };
     });
   }, []);
+
+  const selectAllHandler = () => {
+    setIsChecked((pr) => !pr);
+  };
 
   const multipleDeleteHandler = async () => {
     const selectedTaskIds = Object.keys(multipleId).filter(
@@ -88,7 +74,6 @@ const Task = ({
         await API.sendRequest(
           DELETE_API,
           (res) => {
-            console.log(res);
             if (res?.status === "success") {
               setLoading((pr) => !pr);
               window.location.reload();
@@ -104,7 +89,6 @@ const Task = ({
         await API.sendRequest(
           DELETE_API,
           (res) => {
-            console.log(res);
             if (res?.status === "success") {
               setLoading((pr) => !pr);
               window.location.reload();
@@ -123,11 +107,11 @@ const Task = ({
     <>
       <menu id="tabs">
         <li>
-          <Button onClick={normalTaskHandler}>Normal Task</Button>
+          <Button onClick={() => setSelectedType("NORMAL")}>Normal Task</Button>
           <Badge caption={nTasks.length} />
         </li>
         <li>
-          <Button onClick={dailyTaskHandler}>Daily Task</Button>
+          <Button onClick={() => setSelectedType("DAILY")}>Daily Task</Button>
           <Badge caption={dTasks.length} />
         </li>
       </menu>
@@ -135,7 +119,7 @@ const Task = ({
       <menu id="subtabs">
         {selectedType === "NORMAL" && (
           <>
-            <Button type="dashed" onClick={normalTaskHandler}>
+            <Button type="dashed" onClick={() => setSelectedType("NORMAL")}>
               All
             </Button>
             <Button
@@ -190,7 +174,7 @@ const Task = ({
         )}
         {selectedType === "DAILY" && (
           <>
-            <Button type="dashed" onClick={dailyTaskHandler}>
+            <Button type="dashed" onClick={() => setSelectedType("DAILY")}>
               All
             </Button>
             <Button
@@ -268,7 +252,15 @@ const Task = ({
           </>
         )}
       </menu>
-
+      {filteredTask.length > 0 && (
+        <div
+          style={{ textAlign: "right", marginRight: "6%", marginBottom: "2%" }}
+        >
+          <Checkbox onChange={selectAllHandler} style={{ scale: "1.2" }}>
+            Select all
+          </Checkbox>
+        </div>
+      )}
       {loading ? (
         <Spin
           style={{
@@ -302,8 +294,8 @@ const Task = ({
                   borderRadius: "15px",
                   boxShadow:
                     "rgba(0, 0, 0, 0.19) 0px 5px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px",
-                  padding: "20px",
-                  marginBottom: "15px",
+                  padding: "5%",
+                  marginBottom: "5%",
                 }}
               >
                 <List.Item.Meta
@@ -318,15 +310,23 @@ const Task = ({
                       <p
                         dangerouslySetInnerHTML={{ __html: item?.description }}
                       ></p>
-                      <i>created on {item.createdAt}</i>
+                      <i>Created on {item?.createdAt}</i>
+                      <br />
+                      <i>updated on {item?.updatedAt}</i>
                     </>
                   }
                 />
                 <Checkbox
                   style={{ width: "1.7rem", scale: "1.5" }}
-                  onChange={(e) => {
+                  onChange={() => {
                     idHandler(item);
+                    if (isChecked) {
+                      setIsChecked((pr) => !pr);
+                    } else {
+                      setIsChecked(false);
+                    }
                   }}
+                  // checked={isChecked === true ? isChecked : false}
                 ></Checkbox>
 
                 <EditOutlined
