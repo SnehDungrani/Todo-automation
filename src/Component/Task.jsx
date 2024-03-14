@@ -18,18 +18,16 @@ const Task = ({
   onEdit,
   onFilter,
   onDailyFilter,
-  // filteredData,
-  // dailyFilteredData,
+  filteredData,
+  dailyFilteredData,
 }) => {
   const [selectedType, setSelectedType] = useState("");
   const [filteredTask, setFilteredTask] = useState([]);
   const [loading, setLoading] = useState(false);
   const [multipleId, setMultipleId] = useState([]);
-
   const [allDailyTasks, setAllDailyTasks] = useState([]);
   const [normalTask, setNormalTask] = useState([]);
   const [isSelect, setIsSelect] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
 
   const API = useHttp();
 
@@ -41,6 +39,32 @@ const Task = ({
     );
     setAllDailyTasks(dTasks.filter((item) => item?.task_frequency !== null));
   }, [nTasks, dTasks]);
+
+  useEffect(() => {
+    if (selectedType === "NORMAL") {
+      setFilteredTask(filteredData);
+    } else if (selectedType === "DAILY") {
+      setFilteredTask(dailyFilteredData);
+    }
+  }, [selectedType, filteredData, dailyFilteredData]);
+
+  const normalTaskHandler = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    setSelectedType("NORMAL");
+    setFilteredTask(normalTask);
+  };
+
+  const dailyTaskHandler = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    setSelectedType("DAILY");
+    setFilteredTask(allDailyTasks);
+  };
 
   const filterAllTasks = selectedType === "NORMAL" ? normalTask : allDailyTasks;
 
@@ -55,10 +79,6 @@ const Task = ({
       return { ...prev, [item.id]: updatedId };
     });
   }, []);
-
-  const selectAllHandler = () => {
-    setIsChecked((pr) => !pr);
-  };
 
   const multipleDeleteHandler = async () => {
     const selectedTaskIds = Object.keys(multipleId).filter(
@@ -103,6 +123,30 @@ const Task = ({
     }
   };
 
+  const onClickHandler = (isSelectedButton) => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    if (isSelectedButton === "TODO") {
+      onFilter("TODO");
+    } else if (isSelectedButton === "IN-PROGRESS") {
+      onFilter("IN-PROGRESS");
+    } else if (isSelectedButton === "DONE") {
+      onFilter("DONE");
+    } else if (isSelectedButton === "Daily") {
+      onDailyFilter("Daily");
+    } else if (isSelectedButton === "weekly") {
+      onDailyFilter("weekly");
+    } else if (isSelectedButton === "monthly") {
+      onDailyFilter("monthly");
+    } else if (isSelectedButton === "Quarterly") {
+      onDailyFilter("Quarterly");
+    } else if (isSelectedButton === "yearly") {
+      onDailyFilter("yearly");
+    }
+  };
+
   return (
     <>
       <menu id="tabs">
@@ -119,43 +163,16 @@ const Task = ({
       <menu id="subtabs">
         {selectedType === "NORMAL" && (
           <>
-            <Button type="dashed" onClick={() => setSelectedType("NORMAL")}>
+            <Button type="dashed" onClick={normalTaskHandler}>
               All
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onFilter("TODO");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("TODO")}>
               To-Do
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onFilter("IN-PROGRESS");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("IN-PROGRESS")}>
               In-Progress
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onFilter("DONE");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("DONE")}>
               Completed
             </Button>
             <Button
@@ -174,67 +191,22 @@ const Task = ({
         )}
         {selectedType === "DAILY" && (
           <>
-            <Button type="dashed" onClick={() => setSelectedType("DAILY")}>
+            <Button type="dashed" onClick={dailyTaskHandler}>
               All
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onDailyFilter("Daily");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("Daily")}>
               Daily
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onDailyFilter("weekly");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("weekly")}>
               Weekly
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onDailyFilter("monthly");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("monthly")}>
               Monthly
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onDailyFilter("Quarterly");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("Quarterly")}>
               Quarterly
             </Button>
-            <Button
-              type="dashed"
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
-                onDailyFilter("yearly");
-              }}
-            >
+            <Button type="dashed" onClick={() => onClickHandler("yearly")}>
               Yearly
             </Button>
             <Button
@@ -252,15 +224,7 @@ const Task = ({
           </>
         )}
       </menu>
-      {filteredTask.length > 0 && (
-        <div
-          style={{ textAlign: "right", marginRight: "6%", marginBottom: "2%" }}
-        >
-          <Checkbox onChange={selectAllHandler} style={{ scale: "1.2" }}>
-            Select all
-          </Checkbox>
-        </div>
-      )}
+
       {loading ? (
         <Spin
           style={{
@@ -310,9 +274,9 @@ const Task = ({
                       <p
                         dangerouslySetInnerHTML={{ __html: item?.description }}
                       ></p>
-                      <i>Created on {item?.createdAt}</i>
+                      <i>Created At {item?.createdAt}</i>
                       <br />
-                      <i>updated on {item?.updatedAt}</i>
+                      <i>Updated At {item?.updatedAt}</i>
                     </>
                   }
                 />
@@ -320,13 +284,7 @@ const Task = ({
                   style={{ width: "1.7rem", scale: "1.5" }}
                   onChange={() => {
                     idHandler(item);
-                    if (isChecked) {
-                      setIsChecked((pr) => !pr);
-                    } else {
-                      setIsChecked(false);
-                    }
                   }}
-                  // checked={isChecked === true ? isChecked : false}
                 ></Checkbox>
 
                 <EditOutlined
