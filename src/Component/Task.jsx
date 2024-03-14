@@ -66,16 +66,11 @@ const Task = ({
     setFilteredTask(allDailyTasks);
   };
 
-  useEffect(() => {
-    normalTaskHandler();
-    dailyTaskHandler();
-  }, []);
-
   const idHandler = useCallback(function idHandler(item) {
     setIsSelect(true);
-    setMultipleId((previous) => {
-      const updatedId = !previous[item.id];
-      return { ...previous, [item.id]: updatedId };
+    setMultipleId((prev) => {
+      const updatedId = !prev[item.id];
+      return { ...prev, [item.id]: updatedId };
     });
   }, []);
 
