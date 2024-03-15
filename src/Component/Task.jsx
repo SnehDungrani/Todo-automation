@@ -33,11 +33,20 @@ const Task = ({
 
   useEffect(() => {
     setNormalTask(
-      nTasks.filter(
-        (item) => item?.task_frequency === null || item?.task_frequency !== null
-      )
+      nTasks
+        .filter(
+          (item) =>
+            item?.task_frequency === null || item?.task_frequency !== null
+        )
+        .sort((a, b) => a.updatedAt - b.updatedAt)
+        .reverse()
     );
-    setAllDailyTasks(dTasks.filter((item) => item?.task_frequency !== null));
+    setAllDailyTasks(
+      dTasks
+        .filter((item) => item?.task_frequency !== null)
+        .sort((a, b) => a.updatedAt - b.updatedAt)
+        .reverse()
+    );
   }, [nTasks, dTasks]);
 
   useEffect(() => {
@@ -49,19 +58,11 @@ const Task = ({
   }, [selectedType, filteredData, dailyFilteredData]);
 
   const normalTaskHandler = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
     setSelectedType("NORMAL");
     setFilteredTask(normalTask);
   };
 
   const dailyTaskHandler = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
     setSelectedType("DAILY");
     setFilteredTask(allDailyTasks);
   };
@@ -124,10 +125,11 @@ const Task = ({
   };
 
   const onClickHandler = (isSelectedButton) => {
+    console.log(filteredData);
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 1700);
     if (isSelectedButton === "TODO") {
       onFilter("TODO");
     } else if (isSelectedButton === "IN-PROGRESS") {
@@ -268,7 +270,7 @@ const Task = ({
                       src={`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${item.id}`}
                     />
                   }
-                  title={<a href="https://ant.design">{item?.title}</a>}
+                  title={<a onClick={() => onEdit(item)}>{item?.title}</a>}
                   description={
                     <>
                       <p
