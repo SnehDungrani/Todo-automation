@@ -4,7 +4,7 @@ import { Home } from "../Component/Home";
 
 const Protected = () => {
   const token = localStorage?.getItem("token");
-  return token ? <Home /> : <Navigate to="/login" />;
+  return token ? <Home /> : <Navigate to="/login" replace />;
 };
 
 export default Protected;
