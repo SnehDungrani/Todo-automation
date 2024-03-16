@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Input, Form, Checkbox, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { SiGnuprivacyguard } from "react-icons/si";
@@ -9,7 +9,6 @@ import CONSTANTS from "../util/constant/CONSTANTS";
 
 const SignUp = () => {
   const [form] = Form.useForm();
-  const [isRes, setIsRes] = useState();
   const navigate = useNavigate();
 
   const API = useHttp();
@@ -30,7 +29,6 @@ const SignUp = () => {
           CONSTANTS.API.auth.signup,
           (res) => {
             console.log(res);
-            setIsRes(res);
           },
           userDetail,
           "Signup Successfully"
@@ -156,6 +154,9 @@ const SignUp = () => {
                 Login
               </Link>
             </Button>
+
+            {/* <GoogleAuth onSuccess={signInWithGoogle} onFailure={() => {}} /> */}
+            {/* <Button onClick={signInWithGoogle}>Sign in</Button> */}
           </div>
         </Form>
       </Card>
