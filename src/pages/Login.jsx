@@ -6,6 +6,8 @@ import CONSTANTS from "../util/constant/CONSTANTS";
 
 import useHttp from "../Hooks/use-http";
 import { setAuthDetails } from "../util/API/authStorage";
+import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import app from "../util/firebase";
 
 const Login = () => {
   const token = localStorage.getItem("token");
@@ -13,8 +15,42 @@ const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
+  // const [user, setUser] = useState(null);
+
   const API = useHttp();
 
+  const provider = new GoogleAuthProvider();
+  const auth = getAuth(app);
+
+  const signInWithGoogle = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+
+        const user = result.user;
+
+        const firebaseToken = user.accessToken;
+        setAuthDetails(user.accessToken, user.displayName);
+
+        // localStorage.setItem("token", firebaseToken);
+        // console.log(user.accessToken);
+        navigate("/home");
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
+  };
   if (token) {
     return <Navigate to="/home" />;
   }
@@ -139,6 +175,8 @@ const Login = () => {
               </Button>
             </div>
           </div>
+
+          <Button onClick={signInWithGoogle}>Sign in</Button>
         </Form>
 
         <br />
