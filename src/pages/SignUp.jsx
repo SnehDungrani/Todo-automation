@@ -36,9 +36,9 @@ const SignUp = () => {
           "Signup Successfully"
         );
 
-        if (isRes.status === "success") {
+        setTimeout(() => {
           navigate("/login");
-        }
+        }, 3000);
       })
       .catch((err) => {
         console.log(err);
