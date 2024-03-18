@@ -154,9 +154,6 @@ const SignUp = () => {
                 Login
               </Link>
             </Button>
-
-            {/* <GoogleAuth onSuccess={signInWithGoogle} onFailure={() => {}} /> */}
-            {/* <Button onClick={signInWithGoogle}>Sign in</Button> */}
           </div>
         </Form>
       </Card>
