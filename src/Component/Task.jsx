@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   QuestionCircleOutlined,
   EditOutlined,
@@ -10,17 +10,9 @@ import Badge from "./Badge";
 import { apiGenerator } from "../util/functions";
 import CONSTANTS from "../util/constant/CONSTANTS";
 import useHttp from "../Hooks/use-http";
+import { TaskContext } from "../store/task-context.jsx";
 
-const Task = ({
-  nTasks,
-  dTasks,
-  onDelete,
-  onEdit,
-  onFilter,
-  onDailyFilter,
-  filteredData,
-  dailyFilteredData,
-}) => {
+const Task = () => {
   const [selectedType, setSelectedType] = useState("");
   const [filteredTask, setFilteredTask] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,6 +22,17 @@ const Task = ({
   const [isSelect, setIsSelect] = useState(false);
 
   const API = useHttp();
+
+  const {
+    nTasks,
+    dTasks,
+    dailyFilteredData,
+    filteredData,
+    onDailyFilter,
+    onDelete,
+    onEdit,
+    onFilter,
+  } = useContext(TaskContext);
 
   useEffect(() => {
     setNormalTask(
@@ -47,7 +50,7 @@ const Task = ({
         .sort((a, b) => a.updatedAt - b.updatedAt)
         .reverse()
     );
-  }, [nTasks, dTasks]);
+  }, [dTasks, nTasks]);
 
   useEffect(() => {
     if (selectedType === "NORMAL") {
@@ -125,7 +128,6 @@ const Task = ({
   };
 
   const onClickHandler = (isSelectedButton) => {
-    console.log(filteredData);
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -191,7 +193,7 @@ const Task = ({
             </Button>
           </>
         )}
-        {selectedType === "DAILY" && (
+        {selectedType !== "NORMAL" && (
           <>
             <Button type="dashed" onClick={dailyTaskHandler}>
               All
@@ -267,9 +269,16 @@ const Task = ({
                 <List.Item.Meta
                   avatar={
                     <Avatar
-                      src={`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${item.id}`}
+                      src={`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${
+                        item.status === "TODO"
+                          ? "Gizmo"
+                          : item.status === "IN-PROGRESS"
+                          ? "Scooter"
+                          : "Lilly"
+                      }&backgroundColor=d84be5`}
                     />
                   }
+                  // eslint-disable-next-line jsx-a11y/anchor-is-valid
                   title={<a onClick={() => onEdit(item)}>{item?.title}</a>}
                   description={
                     <>
@@ -279,6 +288,8 @@ const Task = ({
                       <i>Created At {item?.createdAt}</i>
                       <br />
                       <i>Updated At {item?.updatedAt}</i>
+                      <br />
+                      <p>Due Date: {item?.dueDate}</p>
                     </>
                   }
                 />

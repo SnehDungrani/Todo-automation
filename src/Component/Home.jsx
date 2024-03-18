@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
+  DatePicker,
   Dropdown,
   Form,
   Input,
@@ -25,6 +26,7 @@ import { deleteAuthDetails } from "../util/API/authStorage";
 import { DownOutlined } from "@ant-design/icons";
 import { Option } from "antd/es/mentions";
 import Task from "./Task";
+import { TaskContext } from "../store/task-context.jsx";
 
 const headerStyle = {
   textAlign: "right",
@@ -248,7 +250,7 @@ export const Home = () => {
       notification.success({ message: "logging out....", duration: 0.5 });
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
 
         notification.success({
           message: "Logout Successfully",
@@ -258,6 +260,17 @@ export const Home = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const tsxValue = {
+    nTasks: normalTodos,
+    dTasks: dailyTodos,
+    onDelete: deleteTask,
+    onEdit: editTask,
+    onFilter: NormalTaskFilter,
+    onDailyFilter: dailyTaskFilter,
+    filteredData: filteredData,
+    dailyFilteredData: dailyFilteredData,
   };
 
   return (
@@ -360,33 +373,43 @@ export const Home = () => {
             </Form.Item>
 
             {defaultData === null && (
-              <Form.Item
-                id="radio"
-                name="status"
-                label="Select Task Type"
-                required
-              >
-                <Radio.Group>
-                  <Radio
-                    value="TODO"
-                    onClick={() => {
-                      setIsDaily(false);
-                    }}
-                  >
-                    Normal Task
-                  </Radio>
-                  <Radio
-                    value="IN-PROGRESS"
-                    onClick={() => {
-                      setIsDaily(true);
-                    }}
-                  >
-                    Daily Task
-                  </Radio>
-                </Radio.Group>
-              </Form.Item>
+              <>
+                <Form.Item
+                  id="radio"
+                  name="status"
+                  label="Select Task Type"
+                  required
+                >
+                  <Radio.Group>
+                    <Radio
+                      value="TODO"
+                      onClick={() => {
+                        setIsDaily(false);
+                      }}
+                    >
+                      Normal Task
+                    </Radio>
+                    <Radio
+                      value="IN-PROGRESS"
+                      onClick={() => {
+                        setIsDaily(true);
+                      }}
+                    >
+                      Daily Task
+                    </Radio>
+                  </Radio.Group>
+                </Form.Item>
+                <Form.Item
+                  id="date"
+                  name="dueDate"
+                  label="Select Due Date"
+                  required
+                >
+                  <DatePicker status="error" />
+                </Form.Item>
+              </>
             )}
-            {defaultData !== null && defaultData.task_frequency === null && (
+            {defaultData !== null && (
               <Form.Item
                 id="radio"
                 name="status"
@@ -440,16 +463,9 @@ export const Home = () => {
             }}
           />
         ) : (
-          <Task
-            nTasks={normalTodos}
-            dTasks={dailyTodos}
-            onDelete={deleteTask}
-            onEdit={editTask}
-            onFilter={NormalTaskFilter}
-            onDailyFilter={dailyTaskFilter}
-            filteredData={filteredData}
-            dailyFilteredData={dailyFilteredData}
-          />
+          <TaskContext.Provider value={tsxValue}>
+            <Task />
+          </TaskContext.Provider>
         )}
       </div>
     </>
