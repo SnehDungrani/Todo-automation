@@ -8,6 +8,7 @@ import useHttp from "../Hooks/use-http";
 import { setAuthDetails } from "../util/API/authStorage";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import app from "../util/firebase";
+import GoogleButton from "react-google-button";
 
 const Login = () => {
   const token = localStorage.getItem("token");
@@ -175,8 +176,25 @@ const Login = () => {
               </Button>
             </div>
           </div>
-
-          <Button onClick={signInWithGoogle}>Sign in</Button>
+          <br />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <GoogleButton
+              onClick={signInWithGoogle}
+              style={{
+                backgroundColor: "#8458B3",
+                fontSize: "1em",
+                width: "80%",
+                borderTopRightRadius: "30px",
+                borderBottomRightRadius: "30px",
+              }}
+              className="g-button"
+            />
+          </div>
         </Form>
 
         <br />
