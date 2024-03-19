@@ -30,18 +30,12 @@ const WelcomePage = () => {
         }}
       >
         <video
+          className="video"
           width="auto"
           height="auto"
           src={video1}
           loop
           autoPlay
-          style={{
-            borderRadius: "22px",
-            overflow: "hidden",
-            boxShadow:
-              "0 19px 51px 0 rgba(0,0,0,0.16), 0 14px 19px 0 rgba(0,0,0,0.07)",
-            maxWidth: "640px",
-          }}
         ></video>
       </div>
     </>
