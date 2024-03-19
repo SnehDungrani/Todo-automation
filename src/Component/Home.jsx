@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  BackTop,
   Button,
   DatePicker,
   Dropdown,
@@ -27,6 +28,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { Option } from "antd/es/mentions";
 import Task from "./Task";
 import { TaskContext } from "../store/task-context.jsx";
+import { MdKeyboardDoubleArrowUp } from "react-icons/md";
 
 const headerStyle = {
   textAlign: "right",
@@ -65,6 +67,7 @@ export const Home = () => {
   const [filteredData, setFilteredData] = useState([]);
 
   const [dailyFilteredData, setDailyFilteredData] = useState([]);
+  const [isCustom, setIsCustom] = useState("");
 
   const [form] = Form.useForm();
 
@@ -72,29 +75,38 @@ export const Home = () => {
   const API = useHttp();
 
   useEffect(() => {
-    const fetchTask = () => {
-      setIsLoading(true);
-
-      API.sendRequest(CONSTANTS.API.todo.get, (res) => {
-        setIsLoading(false);
-        setNormalTodos(res.data);
-      });
+    const fetchTask = async () => {
+      try {
+        setIsLoading((pr) => !pr);
+        await API.sendRequest(CONSTANTS.API.todo.get, (res) => {
+          setIsLoading((pr) => !pr);
+          setNormalTodos(res.data);
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
     };
 
     fetchTask();
+    // eslint-disable-next-line
   }, [refresh, tempId]);
 
   useEffect(() => {
-    const fetchTask = () => {
-      setIsLoading(true);
+    const fetchTask = async () => {
+      try {
+        setIsLoading((pr) => !pr);
 
-      API.sendRequest(CONSTANTS.API.repeatTodo.get, (res) => {
-        setIsLoading(false);
-        setDailyTodos(res.data);
-      });
+        await API.sendRequest(CONSTANTS.API.repeatTodo.get, (res) => {
+          setIsLoading((pr) => !pr);
+          setDailyTodos(res.data);
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
     };
 
     fetchTask();
+    // eslint-disable-next-line
   }, [refresh, tempId]);
 
   const submitHandler = (e) => {
@@ -103,6 +115,20 @@ export const Home = () => {
     form
       .validateFields()
       .then(async (value) => {
+        console.log(value);
+        const newDate = value.dueDate.split("-").reverse().join("/");
+
+        const newFormData = { ...value, dueDate: newDate };
+
+        // console.log(Fields);
+
+        // value.dueDate =
+        //   value.dueDate.$D +
+        //   "/" +
+        //   (value.dueDate.$M + 1) +
+        //   "/" +
+        //   value.dueDate.$y;
+
         if (value !== null) {
           if (defaultData !== null) {
             try {
@@ -111,14 +137,14 @@ export const Home = () => {
                   id: tempId,
                 });
 
-                API.sendRequest(
+                await API.sendRequest(
                   UPDATE_API,
                   (res) => {
                     if (res?.status === "success") {
                       setRefresh((pr) => !pr);
                     }
                   },
-                  value,
+                  newFormData,
                   "Normal Task Updated successfully"
                 );
               } else {
@@ -129,14 +155,14 @@ export const Home = () => {
                   }
                 );
 
-                API.sendRequest(
+                await API.sendRequest(
                   UPDATE_API,
                   (res) => {
                     if (res?.status === "success") {
                       setRefresh((pr) => !pr);
                     }
                   },
-                  value,
+                  newFormData,
                   "Daily Task Updated successfully"
                 );
               }
@@ -145,25 +171,27 @@ export const Home = () => {
             }
           } else {
             if (isDaily) {
-              API.sendRequest(
+              await API.sendRequest(
                 CONSTANTS.API.repeatTodo.add,
                 (res) => {
                   if (res?.status === "success") {
                     setRefresh((pr) => !pr);
+                    console.log(res);
                   }
                 },
-                value,
+                newFormData,
                 "Daily Task Added successfully"
               );
             } else {
-              API.sendRequest(
+              await API.sendRequest(
                 CONSTANTS.API.todo.add,
                 (res) => {
                   if (res?.status === "success") {
                     setRefresh((pr) => !pr);
+                    console.log(res);
                   }
                 },
-                value,
+                newFormData,
                 "Task Added successfully"
               );
             }
@@ -244,7 +272,7 @@ export const Home = () => {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     try {
       deleteAuthDetails();
       notification.success({ message: "logging out....", duration: 0.5 });
@@ -272,6 +300,16 @@ export const Home = () => {
     filteredData: filteredData,
     dailyFilteredData: dailyFilteredData,
   };
+
+  const options = [
+    "Daily",
+    "weekDays",
+    "weekly",
+    "monthly",
+    "Quarterly",
+    "yearly",
+    "custom",
+  ];
 
   return (
     <>
@@ -372,6 +410,15 @@ export const Home = () => {
               <ReactQuill placeholder="Enter Description" />
             </Form.Item>
 
+            <Form.Item
+              id="date"
+              name="dueDate"
+              label="Select Due Date"
+              required
+            >
+              <input type="date" />
+            </Form.Item>
+
             {defaultData === null && (
               <>
                 <Form.Item
@@ -399,29 +446,23 @@ export const Home = () => {
                     </Radio>
                   </Radio.Group>
                 </Form.Item>
-                <Form.Item
-                  id="date"
-                  name="dueDate"
-                  label="Select Due Date"
-                  required
-                >
-                  <DatePicker status="error" />
-                </Form.Item>
               </>
             )}
             {defaultData !== null && (
-              <Form.Item
-                id="radio"
-                name="status"
-                label="Select Task Type"
-                required
-              >
-                <Radio.Group>
-                  <Radio value="TODO">Todos</Radio>
-                  <Radio value="IN-PROGRESS">In-Progress</Radio>
-                  <Radio value="DONE">Mark as completed</Radio>
-                </Radio.Group>
-              </Form.Item>
+              <>
+                <Form.Item
+                  id="radio"
+                  name="status"
+                  label="Select Task Type"
+                  required
+                >
+                  <Radio.Group>
+                    <Radio value="TODO">Todos</Radio>
+                    <Radio value="IN-PROGRESS">In-Progress</Radio>
+                    <Radio value="DONE">Mark as completed</Radio>
+                  </Radio.Group>
+                </Form.Item>
+              </>
             )}
             {(isDaily ||
               (defaultData !== null &&
@@ -438,17 +479,50 @@ export const Home = () => {
                     },
                   ]}
                 >
-                  <Select style={{ width: "40%" }} defaultValue="Select Task">
-                    <Option value="Daily">Daily</Option>
-                    <Option value="weekly">Weekly</Option>
-                    <Option value="monthly">Monthly</Option>
-                    <Option value="Quarterly">Quarterly</Option>
-                    <Option value="yearly">Yearly</Option>
+                  <Select
+                    style={{ width: "40%" }}
+                    defaultValue="Select Task"
+                    onChange={(value) => {
+                      setIsCustom(value);
+                    }}
+                  >
+                    {options.map((option) => (
+                      <Option value={option} key={option}>
+                        {option}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
-                <br />
-                <br />
               </>
+            )}
+            {isCustom === "custom" && isDaily && (
+              <div className="custom">
+                <div className="custom-1">
+                  <Form.Item
+                    name="dayCount"
+                    rules={[
+                      { required: true },
+                      {
+                        pattern: /^[1-9]\d{0,2}$/,
+                      },
+                    ]}
+                    style={{ width: "15%" }}
+                  >
+                    <Input defaultValue="1" />
+                  </Form.Item>
+                  <Form.Item name="duration" rules={[{ required: true }]}>
+                    <Select
+                      style={{ width: 120 }}
+                      defaultValue="Select duration"
+                    >
+                      <Option value="day">Daily</Option>
+                      <Option value="week">Weekly</Option>
+                      <Option value="month">Monthly</Option>
+                      <Option value="year">Yearly</Option>
+                    </Select>
+                  </Form.Item>
+                </div>
+              </div>
             )}
           </Form>
         </Modal>
@@ -468,6 +542,14 @@ export const Home = () => {
           </TaskContext.Provider>
         )}
       </div>
+      <div>
+        <BackTop>
+          <div className="ant-back-top-inner">
+            <MdKeyboardDoubleArrowUp />
+          </div>
+        </BackTop>
+      </div>
+      ,
     </>
   );
 };
