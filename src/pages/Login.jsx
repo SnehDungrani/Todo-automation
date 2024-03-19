@@ -23,32 +23,48 @@ const Login = () => {
   const provider = new GoogleAuthProvider();
   const auth = getAuth(app);
 
-  const signInWithGoogle = () => {
-    signInWithPopup(auth, provider)
+  const signInWithGoogle = async () => {
+    await signInWithPopup(auth, provider)
       .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
+        console.log(credential);
+        const token = credential?.accessToken;
+
         // The signed-in user info.
+        const user = result?.user;
+        const firebaseToken = user?.accessToken;
 
-        const user = result.user;
+        localStorage.setItem("token", firebaseToken);
 
-        const firebaseToken = user.accessToken;
-        setAuthDetails(user.accessToken, user.displayName);
+        // localStorage.setItem("ItemToken", firebaseToken);
 
-        // localStorage.setItem("token", firebaseToken);
-        // console.log(user.accessToken);
+        // API.sendRequest(
+        //   CONSTANTS.API.auth.gLogin,
+        //   (res) => {
+        //     console.log(res);
+
+        //     setAuthDetails(res?.tokens?.token, res?.data?.user?.name);
+        //     if (res?.status === "success") {
+        //       navigate("/home");
+        //     }
+
+        //     // window.location.reload();
+        //   },
+
+        //   "Login Successfully"
+        // );
+
         navigate("/home");
-        // ...
       })
-      .catch((error) => {
+      .catch((Error) => {
+        // throw new Error("Failed to sign up with Google");
         // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
+        // const errorCode = error.code;
+        // const errorMessage = error.message;
+        // // The email of the user's account used.
+        // const email = error.customData.email;
+        // // The AuthCredential type that was used.
+        // const credential = GoogleAuthProvider.credentialFromError(error);
         // ...
       });
   };
