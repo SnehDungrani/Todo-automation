@@ -94,7 +94,55 @@ span .ant-select-selection-item {
 #subtabs li {
   width: auto;
   list-style-type: none;
+}
 
+
+.ant-back-top {
+  bottom: 50px;
+}
+
+.ant-back-top-inner {
+  height: 40px;
+  width: 40px;
+  border-radius: 50px;
+  background-color: #8458B3;
+  color: #fff;
+  font-size: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-1,
+.custom-2 {
+  display: flex;
+  border: 1px solid black;
+  width: auto;
+}
+
+
+input[type="date"] {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding-right: 20px;
+}
+
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #8458B3;
+  box-shadow: 0 0 5px #8458B3
+}
+
+.video {
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 19px 51px 0 rgba(0, 0, 0, 0.16), 0 14px 19px 0 rgba(0, 0, 0, 0.07);
+  max-width: 780px;
 }
 
 
@@ -109,5 +157,12 @@ span .ant-select-selection-item {
     max-width: 650px;
     box-sizing: border-box;
     margin-top: 25%;
+  }
+
+  .video {
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 19px 51px 0 rgba(0, 0, 0, 0.16), 0 14px 19px 0 rgba(0, 0, 0, 0.07);
+    width: 350px;
   }
 }
