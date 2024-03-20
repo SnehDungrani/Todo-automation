@@ -3,6 +3,7 @@ import {
   BackTop,
   Button,
   Checkbox,
+  DatePicker,
   Dropdown,
   Form,
   Input,
@@ -29,6 +30,7 @@ import { Option } from "antd/es/mentions";
 import Task from "./Task";
 import { TaskContext } from "../store/task-context.jsx";
 import { MdKeyboardDoubleArrowUp } from "react-icons/md";
+import dayjs from "dayjs";
 
 const headerStyle = {
   textAlign: "right",
@@ -117,18 +119,21 @@ export const Home = () => {
       .validateFields()
       .then(async (value) => {
         console.log(value);
-        const newDate = value.dueDate.split("-").reverse().join("/");
+        // const newDate = value.dueDate.split("-").reverse().join("/");
 
-        const newFormData = { ...value, dueDate: newDate };
+        // const newFormData = { ...value, dueDate: newDate };
 
         // console.log(Fields);
 
-        // value.dueDate =
-        //   value.dueDate.$D +
-        //   "/" +
-        //   (value.dueDate.$M + 1) +
-        //   "/" +
-        //   value.dueDate.$y;
+        value.dueDate =
+          value.dueDate.$D +
+          "/" +
+          (value.dueDate.$M + 1) +
+          "/" +
+          value.dueDate.$y;
+
+        // const newDate = value.dueDate ? dayjs(value.dueDate).toDate() : null;
+        // value.dueDate = newDate;
 
         if (value !== null) {
           if (defaultData !== null) {
@@ -145,7 +150,7 @@ export const Home = () => {
                       setRefresh((pr) => !pr);
                     }
                   },
-                  newFormData,
+                  value,
                   "Normal Task Updated successfully"
                 );
               } else {
@@ -163,7 +168,7 @@ export const Home = () => {
                       setRefresh((pr) => !pr);
                     }
                   },
-                  newFormData,
+                  value,
                   "Daily Task Updated successfully"
                 );
               }
@@ -180,7 +185,7 @@ export const Home = () => {
                     console.log(res);
                   }
                 },
-                newFormData,
+                value,
                 "Daily Task Added successfully"
               );
             } else {
@@ -192,7 +197,7 @@ export const Home = () => {
                     console.log(res);
                   }
                 },
-                newFormData,
+                value,
                 "Task Added successfully"
               );
             }
@@ -318,11 +323,9 @@ export const Home = () => {
     const { value } = e.target;
     const isChecked = e.target.checked;
 
-    if (isChecked) {
-      setSelectedValue([...selectedValue, value]);
-    } else {
-      setSelectedValue(selectedValue.filter((day) => day !== value));
-    }
+    isChecked
+      ? setSelectedValue([...selectedValue, value])
+      : setSelectedValue(selectedValue.filter((day) => day !== value));
   };
 
   return (
@@ -430,7 +433,7 @@ export const Home = () => {
               label="Select Due Date"
               required
             >
-              <input type="date" />
+              <DatePicker />
             </Form.Item>
 
             {defaultData === null && (
