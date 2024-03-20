@@ -10,16 +10,14 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyD5lTnTPfU9vxj3HJSz0G8MQqbyfMq2TlI",
-  authDomain: "smart-todo-9d096.firebaseapp.com",
-  projectId: "smart-todo-9d096",
-  storageBucket: "smart-todo-9d096.appspot.com",
-  messagingSenderId: "1051588587804",
-  appId: "1:1051588587804:web:8482d9cc0731ffd3388ad9",
-  measurementId: "G-VCJP4DGWFH",
+  apiKey: "AIzaSyBgkxRf3jaQl8NzYEuFK2llTVzqMHrWREY",
+  authDomain: "smart-todo-ffb67.firebaseapp.com",
+  projectId: "smart-todo-ffb67",
+  storageBucket: "smart-todo-ffb67.appspot.com",
+  messagingSenderId: "996408600",
+  appId: "1:996408600:web:e3578d7c582cd9a3e9b26d",
+  measurementId: "G-BQHG9FB2C4",
 };
-
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 export const database = getDatabase(app);
