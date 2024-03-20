@@ -216,9 +216,9 @@ const Task = () => {
             <Button
               type="default"
               onClick={() => {
-                setTimeout(() => {
-                  setLoading(false);
-                }, 2000);
+                // setTimeout(() => {
+                //   setLoading(false);
+                // }, 2000);
                 multipleDeleteHandler();
               }}
               disabled={isSelect === false}
@@ -289,7 +289,7 @@ const Task = () => {
                       <br />
                       <i>Updated At {item?.updatedAt}</i>
                       <br />
-                      <p>Due Date: {item?.dueDate}</p>
+                      <p style={{ color: "red" }}>Due Date: {item?.dueDate}</p>
                     </>
                   }
                 />
