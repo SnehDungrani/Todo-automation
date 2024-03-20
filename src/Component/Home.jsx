@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   BackTop,
   Button,
+  Checkbox,
   Dropdown,
   Form,
   Input,
@@ -67,7 +68,7 @@ export const Home = () => {
 
   const [dailyFilteredData, setDailyFilteredData] = useState([]);
   const [isOption, setIsOption] = useState("");
-  const [selectedValue, setSelectedValue] = React.useState(null);
+  const [selectedValue, setSelectedValue] = useState([]);
 
   const [form] = Form.useForm();
 
@@ -315,18 +316,12 @@ export const Home = () => {
 
   const onChange = (e) => {
     const { value } = e.target;
-    setSelectedValue((prev) => ({
-      ...prev,
-      days: value,
-    }));
-  };
+    const isChecked = e.target.checked;
 
-  console.log(selectedValue);
-
-  const deselectOnClick = (e) => {
-    const { value } = e.target;
-    if (value === selectedValue) {
-      setSelectedValue(null);
+    if (isChecked) {
+      setSelectedValue([...selectedValue, value]);
+    } else {
+      setSelectedValue(selectedValue.filter((day) => day !== value));
     }
   };
 
@@ -516,22 +511,15 @@ export const Home = () => {
             )}
             {isOption === "weekDays" && isDaily && (
               <>
-                {weekDays.map((radio) => (
-                  <Radio.Group
-                    defaultValue="MO"
-                    buttonStyle="solid"
+                {weekDays.map((checkbox) => (
+                  <Checkbox
                     style={{ margin: "1%" }}
                     onChange={onChange}
-                    rules={[{ required: true }]}
+                    value={checkbox}
+                    key={checkbox}
                   >
-                    <Radio.Button
-                      onClick={deselectOnClick}
-                      value={radio}
-                      key={radio}
-                    >
-                      {radio}
-                    </Radio.Button>
-                  </Radio.Group>
+                    {checkbox}
+                  </Checkbox>
                 ))}
               </>
             )}
