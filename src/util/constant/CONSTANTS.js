@@ -2,7 +2,6 @@ const CONSTANTS = {
   API: {
     todo: {
       get: {
-        type: "GET",
         endpoint: "/tasks",
       },
       add: {
@@ -14,7 +13,6 @@ const CONSTANTS = {
         endpoint: `/tasks/:id`,
       },
       filter: {
-        type: "GET",
         endpoint: `/tasks?status=:statusType`,
       },
       delete: {
@@ -29,7 +27,6 @@ const CONSTANTS = {
 
     repeatTodo: {
       get: {
-        type: "GET",
         endpoint: "/repeatTasks",
       },
       add: {
@@ -42,7 +39,6 @@ const CONSTANTS = {
       },
 
       filter: {
-        type: "GET",
         endpoint: `/repeatTasks?task_frequency=:taskType`,
       },
       delete: {
