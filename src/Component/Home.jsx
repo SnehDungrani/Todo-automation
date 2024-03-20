@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   BackTop,
   Button,
-  DatePicker,
   Dropdown,
   Form,
   Input,
@@ -67,7 +66,8 @@ export const Home = () => {
   const [filteredData, setFilteredData] = useState([]);
 
   const [dailyFilteredData, setDailyFilteredData] = useState([]);
-  const [isCustom, setIsCustom] = useState("");
+  const [isOption, setIsOption] = useState("");
+  const [selectedValue, setSelectedValue] = React.useState(null);
 
   const [form] = Form.useForm();
 
@@ -311,6 +311,25 @@ export const Home = () => {
     "custom",
   ];
 
+  const weekDays = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+
+  const onChange = (e) => {
+    const { value } = e.target;
+    setSelectedValue((prev) => ({
+      ...prev,
+      days: value,
+    }));
+  };
+
+  console.log(selectedValue);
+
+  const deselectOnClick = (e) => {
+    const { value } = e.target;
+    if (value === selectedValue) {
+      setSelectedValue(null);
+    }
+  };
+
   return (
     <>
       <Layout style={layoutStyle}>
@@ -483,7 +502,7 @@ export const Home = () => {
                     style={{ width: "40%" }}
                     defaultValue="Select Task"
                     onChange={(value) => {
-                      setIsCustom(value);
+                      setIsOption(value);
                     }}
                   >
                     {options.map((option) => (
@@ -495,7 +514,28 @@ export const Home = () => {
                 </Form.Item>
               </>
             )}
-            {isCustom === "custom" && isDaily && (
+            {isOption === "weekDays" && isDaily && (
+              <>
+                {weekDays.map((radio) => (
+                  <Radio.Group
+                    defaultValue="MO"
+                    buttonStyle="solid"
+                    style={{ margin: "1%" }}
+                    onChange={onChange}
+                    rules={[{ required: true }]}
+                  >
+                    <Radio.Button
+                      onClick={deselectOnClick}
+                      value={radio}
+                      key={radio}
+                    >
+                      {radio}
+                    </Radio.Button>
+                  </Radio.Group>
+                ))}
+              </>
+            )}
+            {isOption === "custom" && isDaily && (
               <div className="custom">
                 <div className="custom-1">
                   <Form.Item
