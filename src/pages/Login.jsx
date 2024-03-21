@@ -19,58 +19,50 @@ const Login = () => {
   // const [user, setUser] = useState(null);
 
   const API = useHttp();
-
-  const provider = new GoogleAuthProvider();
+  // const [user, setUser] = useState(null);
   const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
 
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, provider)
       .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        console.log(credential);
-        const token = credential?.accessToken;
-
         // The signed-in user info.
         const user = result?.user;
-        const firebaseToken = user?.accessToken;
+        const googleIdToken = user?.accessToken;
 
-        localStorage.setItem("token", firebaseToken);
+        localStorage.setItem("token", googleIdToken);
+        console.log(googleIdToken);
 
-        // localStorage.setItem("ItemToken", firebaseToken);
+        // localStorage.setItem("ItemToken", googleIdToken);
 
-        // API.sendRequest(
-        //   CONSTANTS.API.auth.gLogin,
-        //   (res) => {
-        //     console.log(res);
+        API.sendRequest(
+          CONSTANTS.API.auth.login,
+          (res) => {
+            console.log(res);
+            // const googleIdToken = localStorage.getItem("token");
 
-        //     setAuthDetails(res?.tokens?.token, res?.data?.user?.name);
-        //     if (res?.status === "success") {
-        //       navigate("/home");
-        //     }
+            setAuthDetails(res?.tokens?.token, res?.data?.user?.name);
+            console.log("success");
+            if (res?.status === "success") {
+              navigate("/home");
+            }
 
-        //     // window.location.reload();
-        //   },
+            window.location.reload();
+          },
+          { googleIdToken },
+          "Login Successfully"
+        );
 
-        //   "Login Successfully"
-        // );
-
-        navigate("/home");
+        // navigate("/home");
       })
-      .catch((Error) => {
-        // throw new Error("Failed to sign up with Google");
-        // Handle Errors here.
-        // const errorCode = error.code;
-        // const errorMessage = error.message;
-        // // The email of the user's account used.
-        // const email = error.customData.email;
-        // // The AuthCredential type that was used.
-        // const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
+      .catch((error) => {
+        console.error("Error:", error);
       });
   };
-  if (token) {
-    return <Navigate to="/home" />;
-  }
+
+  // if (token) {
+  //   return <Navigate to="/home" />;
+  // }
 
   const loginHandler = () => {
     form
@@ -88,7 +80,7 @@ const Login = () => {
               navigate("/home");
             }
 
-            window.location.reload();
+            // window.location.reload();
           },
           value,
           "Login Successfully"
