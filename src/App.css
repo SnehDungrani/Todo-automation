@@ -113,25 +113,12 @@ span .ant-select-selection-item {
   align-items: center;
 }
 
-.custom-1,
-.custom-2 {
+.custom {
   display: flex;
   width: auto;
 }
 
-
-input[type="date"] {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  padding-right: 20px;
-}
-
-
-input[type="date"]:focus {
+.date:focus {
   outline: none;
   border-color: #8458B3;
   box-shadow: 0 0 5px #8458B3
