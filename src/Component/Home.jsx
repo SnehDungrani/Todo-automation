@@ -31,6 +31,7 @@ import Task from "./Task";
 import { TaskContext } from "../store/task-context.jsx";
 import { MdKeyboardDoubleArrowUp } from "react-icons/md";
 import dayjs from "dayjs";
+import moment from "moment";
 
 const headerStyle = {
   textAlign: "right",
@@ -119,21 +120,14 @@ export const Home = () => {
       .validateFields()
       .then(async (value) => {
         console.log(value);
-        // const newDate = value.dueDate.split("-").reverse().join("/");
 
-        // const newFormData = { ...value, dueDate: newDate };
+        const formattedDate = {};
 
-        // console.log(Fields);
+        if (value?.dueDate) {
+          formattedDate.dueDate = dayjs(value?.dueDate).format("DD/MM/YYYY");
+        }
 
-        value.dueDate =
-          value.dueDate.$D +
-          "/" +
-          (value.dueDate.$M + 1) +
-          "/" +
-          value.dueDate.$y;
-
-        // const newDate = value.dueDate ? dayjs(value.dueDate).toDate() : null;
-        // value.dueDate = newDate;
+        const newFormData = { ...value, ...formattedDate };
 
         if (value !== null) {
           if (defaultData !== null) {
@@ -150,7 +144,7 @@ export const Home = () => {
                       setRefresh((pr) => !pr);
                     }
                   },
-                  value,
+                  newFormData,
                   "Normal Task Updated successfully"
                 );
               } else {
@@ -168,7 +162,7 @@ export const Home = () => {
                       setRefresh((pr) => !pr);
                     }
                   },
-                  value,
+                  newFormData,
                   "Daily Task Updated successfully"
                 );
               }
@@ -185,7 +179,7 @@ export const Home = () => {
                     console.log(res);
                   }
                 },
-                value,
+                newFormData,
                 "Daily Task Added successfully"
               );
             } else {
@@ -197,7 +191,7 @@ export const Home = () => {
                     console.log(res);
                   }
                 },
-                value,
+                newFormData,
                 "Task Added successfully"
               );
             }
@@ -213,7 +207,11 @@ export const Home = () => {
 
   const editTask = (item) => {
     setIsModalOpen((pr) => !pr);
-    form.setFieldsValue(item);
+    const initialValues = {
+      ...item,
+      dueDate: moment(item.dueDate, "DD/MM/YYYY"),
+    };
+    form.setFieldsValue(initialValues);
     setDefaultDataSet(item);
     setTempId(item.id);
   };
@@ -328,6 +326,15 @@ export const Home = () => {
       : setSelectedValue(selectedValue.filter((day) => day !== value));
   };
 
+  const durationTypes = [
+    { value: "day", label: "Daily" },
+    { value: "week", label: "Weekly" },
+    { value: "month", label: "Monthly" },
+    { value: "year", label: "Yearly" },
+  ];
+
+  const durationTypeSelect = <Select options={durationTypes} />;
+
   return (
     <>
       <Layout style={layoutStyle}>
@@ -433,7 +440,7 @@ export const Home = () => {
               label="Select Due Date"
               required
             >
-              <DatePicker />
+              <DatePicker format="DD/MM/YYYY" />
             </Form.Item>
 
             {defaultData === null && (
@@ -512,47 +519,103 @@ export const Home = () => {
                 </Form.Item>
               </>
             )}
+
             {isOption === "weekDays" && isDaily && (
-              <>
-                {weekDays.map((checkbox) => (
-                  <Checkbox
-                    style={{ margin: "1%" }}
-                    onChange={onChange}
-                    value={checkbox}
-                    key={checkbox}
-                  >
-                    {checkbox}
-                  </Checkbox>
-                ))}
-              </>
-            )}
-            {isOption === "custom" && isDaily && (
-              <div className="custom">
-                <div className="custom-1">
-                  <Form.Item
-                    name="dayCount"
-                    rules={[
-                      { required: true },
-                      {
-                        pattern: /^[1-9]\d{0,2}$/,
-                      },
-                    ]}
-                    style={{ width: "15%" }}
-                  >
-                    <Input defaultValue="1" />
-                  </Form.Item>
-                  <Form.Item name="duration" rules={[{ required: true }]}>
-                    <Select
-                      style={{ width: 120 }}
-                      defaultValue="Select duration"
+              <Form.Item name="selectedDays">
+                <Checkbox.Group>
+                  {weekDays.map((checkbox) => (
+                    <Checkbox
+                      style={{ margin: "1%" }}
+                      onChange={onChange}
+                      value={checkbox}
+                      key={checkbox}
                     >
-                      <Option value="day">Daily</Option>
-                      <Option value="week">Weekly</Option>
-                      <Option value="month">Monthly</Option>
-                      <Option value="year">Yearly</Option>
-                    </Select>
-                  </Form.Item>
-                </div>
+                      {checkbox}
+                    </Checkbox>
+                  ))}
+                </Checkbox.Group>
+              </Form.Item>
+            )}
+            {isOption === "custom" && isDaily && defaultData === null && (
+              <div className="custom">
+                <Form.List
+                  name={["duration"]}
+                  initialValue={[{ durationCount: "1", durationType: "Daily" }]}
+                >
+                  {(list) =>
+                    list.map((item) => {
+                      return (
+                        <Form.Item
+                          key={item.key}
+                          {...item}
+                          name={[item.name, "durationCount"]}
+                          style={{ width: "30%" }}
+                          rules={[
+                            { required: true },
+                            {
+                              pattern: /^[1-9]\d{0,2}$/,
+                              message:
+                                "Please enter a number between 1 and 999",
+                            },
+                          ]}
+                        >
+                          <Input
+                            addonAfter={
+                              <Form.Item
+                                name={[item.name, "durationType"]}
+                                noStyle
+                                initialValue="Daily"
+                              >
+                                {durationTypeSelect}
+                              </Form.Item>
+                            }
+                          />
+                        </Form.Item>
+                      );
+                    })
+                  }
+                </Form.List>
+              </div>
+            )}
+            {isOption === "custom" && defaultData !== null && (
+              <div className="custom">
+                <Form.List
+                  name={["duration"]}
+                  initialValue={[{ durationCount: "1", durationType: "Daily" }]}
+                >
+                  {(list) =>
+                    list.map((item) => {
+                      return (
+                        <Form.Item
+                          key={item.key}
+                          {...item}
+                          name={[item.name, "durationCount"]}
+                          style={{ width: "30%" }}
+                          rules={[
+                            { required: true },
+                            {
+                              pattern: /^[1-9]\d{0,2}$/,
+                              message:
+                                "Please enter a number between 1 and 999",
+                            },
+                          ]}
+                        >
+                          <Input
+                            addonAfter={
+                              <Form.Item
+                                name={[item.name, "durationType"]}
+                                noStyle
+                                initialValue="Daily"
+                              >
+                                {durationTypeSelect}
+                              </Form.Item>
+                            }
+                          />
+                        </Form.Item>
+                      );
+                    })
+                  }
+                </Form.List>
               </div>
             )}
           </Form>
