@@ -86,8 +86,8 @@ export default function Home() {
           setIsLoading((pr) => !pr);
           setNormalTodos(res.data);
         });
-      } catch (e) {
-        console.log(e.message);
+      } catch (error) {
+        console.log(error.message);
       }
     };
 
@@ -103,13 +103,21 @@ export default function Home() {
           setIsLoading((pr) => !pr);
           setDailyTodos(res.data);
         });
-      } catch (e) {
-        console.log(e.message);
+      } catch (error) {
+        console.log(error.message);
       }
     };
 
     fetchTask();
   }, [refresh, tempId]);
+
+  useEffect(() => {
+    if (defaultData !== null && defaultData.task_frequency === "custom") {
+      setIsOption("custom");
+    } else {
+      setIsOption("");
+    }
+  }, [defaultData]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -173,7 +181,6 @@ export default function Home() {
               (res) => {
                 if (res?.status === "success") {
                   setRefresh((pr) => !pr);
-                  console.log(res);
                 }
               },
               newFormData,
@@ -185,7 +192,6 @@ export default function Home() {
               (res) => {
                 if (res?.status === "success") {
                   setRefresh((pr) => !pr);
-                  console.log(res);
                 }
               },
               newFormData,
@@ -205,7 +211,7 @@ export default function Home() {
     setIsModalOpen((pr) => !pr);
     const initialValues = {
       ...item,
-      dueDate: moment(item.dueDate, "DD/MM/YYYY"),
+      dueDate: dayjs(item.dueDate, "DD/MM/YYYY"),
     };
     form.setFieldsValue(initialValues);
     setDefaultDataSet(item);
@@ -451,14 +457,19 @@ export default function Home() {
             >
               <ReactQuill placeholder="Enter Description" />
             </Form.Item>
-
             <Form.Item
               id="date"
               name="dueDate"
               label="Select Due Date"
               required
             >
-              <DatePicker format="DD/MM/YYYY" />
+              <DatePicker
+                format="DD/MM/YYYY"
+                // value={value?.dueDate}
+                disabledDate={(current) => {
+                  return current && current < moment().startOf("day");
+                }}
+              />
             </Form.Item>
 
             {defaultData === null && (
@@ -531,8 +542,7 @@ export default function Home() {
                 </Select>
               </Form.Item>
             )}
-
-            {isOption === "weekDays" && isDaily && (
+            {isOption === "weekDays" && (
               <Form.Item name="selectedDays">
                 <Checkbox.Group>
                   {weekDays.map((checkbox) => (
@@ -548,45 +558,7 @@ export default function Home() {
                 </Checkbox.Group>
               </Form.Item>
             )}
-            {isOption === "custom" && isDaily && defaultData === null && (
-              <div className="custom">
-                <Form.List
-                  name={["duration"]}
-                  initialValue={[{ durationCount: "1", durationType: "Daily" }]}
-                >
-                  {(list) =>
-                    list.map((item) => (
-                      <Form.Item
-                        key={item.key}
-                        {...item}
-                        name={[item.name, "durationCount"]}
-                        style={{ width: "30%" }}
-                        rules={[
-                          { required: true },
-                          {
-                            pattern: /^[1-9]\d{0,2}$/,
-                            message: "Please enter a number between 1 and 999",
-                          },
-                        ]}
-                      >
-                        <Input
-                          addonAfter={
-                            <Form.Item
-                              name={[item.name, "durationType"]}
-                              noStyle
-                              initialValue="Daily"
-                            >
-                              {durationTypeSelect}
-                            </Form.Item>
-                          }
-                        />
-                      </Form.Item>
-                    ))
-                  }
-                </Form.List>
-              </div>
-            )}
-            {isOption === "custom" && defaultData !== null && (
+            {isOption === "custom" && (
               <div className="custom">
                 <Form.List
                   name={["duration"]}
