@@ -1,13 +1,12 @@
 import "./App.css";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-// import HeaderAnt from "./Component/Header";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import RootLayout from "./pages/Root";
-import { Home } from "./Component/Home";
 import Protected from "./pages/Protected";
 import WelcomePage from "./pages/WelcomePage";
+import Home from "./Component/Home";
 
 const router = createBrowserRouter([
   {

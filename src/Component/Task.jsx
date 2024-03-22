@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   QuestionCircleOutlined,
   EditOutlined,
@@ -10,7 +10,7 @@ import Badge from "./Badge";
 import { apiGenerator } from "../util/functions";
 import CONSTANTS from "../util/constant/CONSTANTS";
 import useHttp from "../Hooks/use-http";
-import { TaskContext } from "../store/task-context.jsx";
+import { TaskContext } from "../store/task-context";
 
 const Task = () => {
   const [selectedType, setSelectedType] = useState("");
@@ -76,7 +76,7 @@ const Task = () => {
     setFilteredTask(filterAllTasks);
   }, [filterAllTasks]);
 
-  const idHandler = useCallback(function idHandler(item) {
+  const idHandler = useCallback((item) => {
     setIsSelect(true);
     setMultipleId((prev) => {
       const updatedId = !prev[item.id];
@@ -253,7 +253,7 @@ const Task = () => {
                 display: "flex",
                 justifyContent: "center",
               }}
-            ></Alert>
+            />
           ) : (
             filteredTask?.map((item) => (
               <List.Item
@@ -283,13 +283,23 @@ const Task = () => {
                   description={
                     <>
                       <p
+                        // eslint-disable-next-line react/no-danger
                         dangerouslySetInnerHTML={{ __html: item?.description }}
-                      ></p>
-                      <i>Created At {item?.createdAt}</i>
+                      />
+                      <i>
+                        Created At
+                        {item?.createdAt}
+                      </i>
                       <br />
-                      <i>Updated At {item?.updatedAt}</i>
+                      <i>
+                        Updated At
+                        {item?.updatedAt}
+                      </i>
                       <br />
-                      <p style={{ color: "red" }}>Due Date: {item?.dueDate}</p>
+                      <p style={{ color: "red" }}>
+                        Due Date:
+                        {item?.dueDate}
+                      </p>
                     </>
                   }
                 />
@@ -298,7 +308,7 @@ const Task = () => {
                   onChange={() => {
                     idHandler(item);
                   }}
-                ></Checkbox>
+                />
 
                 <EditOutlined
                   style={{ color: "#8458B3", fontSize: "25px", width: "1.5em" }}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BackTop,
   Button,
@@ -21,17 +21,17 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineLogout } from "react-icons/ai";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { DownOutlined } from "@ant-design/icons";
+import { Option } from "antd/es/mentions";
+import { MdKeyboardDoubleArrowUp } from "react-icons/md";
+import dayjs from "dayjs";
+import moment from "moment";
 import useHttp from "../Hooks/use-http";
 import CONSTANTS from "../util/constant/CONSTANTS";
 import { apiGenerator } from "../util/functions";
 import { deleteAuthDetails } from "../util/API/authStorage";
-import { DownOutlined } from "@ant-design/icons";
-import { Option } from "antd/es/mentions";
 import Task from "./Task";
-import { TaskContext } from "../store/task-context.jsx";
-import { MdKeyboardDoubleArrowUp } from "react-icons/md";
-import dayjs from "dayjs";
-import moment from "moment";
+import { TaskContext } from "../store/task-context";
 
 const headerStyle = {
   textAlign: "right",
@@ -54,7 +54,7 @@ const layoutStyle = {
   width: "100%",
 };
 
-export const Home = () => {
+export default function Home() {
   const [normalTodos, setNormalTodos] = useState([]);
   const [dailyTodos, setDailyTodos] = useState([]);
   const [tempId, setTempId] = useState("");
@@ -92,7 +92,6 @@ export const Home = () => {
     };
 
     fetchTask();
-    // eslint-disable-next-line
   }, [refresh, tempId]);
 
   useEffect(() => {
@@ -110,7 +109,6 @@ export const Home = () => {
     };
 
     fetchTask();
-    // eslint-disable-next-line
   }, [refresh, tempId]);
 
   const submitHandler = (e) => {
@@ -169,32 +167,30 @@ export const Home = () => {
             } catch (err) {
               console.error(err);
             }
+          } else if (isDaily) {
+            await API.sendRequest(
+              CONSTANTS.API.repeatTodo.add,
+              (res) => {
+                if (res?.status === "success") {
+                  setRefresh((pr) => !pr);
+                  console.log(res);
+                }
+              },
+              newFormData,
+              "Daily Task Added successfully"
+            );
           } else {
-            if (isDaily) {
-              await API.sendRequest(
-                CONSTANTS.API.repeatTodo.add,
-                (res) => {
-                  if (res?.status === "success") {
-                    setRefresh((pr) => !pr);
-                    console.log(res);
-                  }
-                },
-                newFormData,
-                "Daily Task Added successfully"
-              );
-            } else {
-              await API.sendRequest(
-                CONSTANTS.API.todo.add,
-                (res) => {
-                  if (res?.status === "success") {
-                    setRefresh((pr) => !pr);
-                    console.log(res);
-                  }
-                },
-                newFormData,
-                "Task Added successfully"
-              );
-            }
+            await API.sendRequest(
+              CONSTANTS.API.todo.add,
+              (res) => {
+                if (res?.status === "success") {
+                  setRefresh((pr) => !pr);
+                  console.log(res);
+                }
+              },
+              newFormData,
+              "Task Added successfully"
+            );
           }
 
           setIsModalOpen((pr) => !pr);
@@ -217,37 +213,29 @@ export const Home = () => {
   };
 
   const deleteTask = async (item, selectedType) => {
+    let deleteApi;
+    let successMessage;
+
     if (selectedType === "NORMAL") {
-      const DELETE_API = apiGenerator(CONSTANTS.API.todo.delete, {
-        id: item.id,
-      });
-
-      await API.sendRequest(
-        DELETE_API,
-        (res) => {
-          if (res?.status === "success") {
-            setRefresh((pr) => !pr);
-          }
-        },
-        {},
-        "Normal Task Deleted successfully"
-      );
+      deleteApi = apiGenerator(CONSTANTS.API.todo.delete, { id: item.id });
+      successMessage = "Normal Task";
     } else {
-      const DELETE_API = apiGenerator(CONSTANTS.API.repeatTodo.delete, {
+      deleteApi = apiGenerator(CONSTANTS.API.repeatTodo.delete, {
         id: item.id,
       });
-
-      await API.sendRequest(
-        DELETE_API,
-        (res) => {
-          if (res?.status === "success") {
-            setRefresh((pr) => !pr);
-          }
-        },
-        {},
-        "Daily Task Deleted successfully"
-      );
+      successMessage = "Daily Task";
     }
+
+    await API.sendRequest(
+      deleteApi,
+      (res) => {
+        if (res?.status === "success") {
+          setRefresh((pr) => !pr);
+        }
+      },
+      {},
+      `${successMessage} Deleted successfully`
+    );
   };
 
   const NormalTaskFilter = async (props) => {
@@ -294,16 +282,30 @@ export const Home = () => {
     }
   };
 
-  const tsxValue = {
-    nTasks: normalTodos,
-    dTasks: dailyTodos,
-    onDelete: deleteTask,
-    onEdit: editTask,
-    onFilter: NormalTaskFilter,
-    onDailyFilter: dailyTaskFilter,
-    filteredData: filteredData,
-    dailyFilteredData: dailyFilteredData,
-  };
+  const tsxValue = useMemo(
+    () => ({
+      nTasks: normalTodos,
+      dTasks: dailyTodos,
+      onDelete: deleteTask,
+      onEdit: editTask,
+      onFilter: NormalTaskFilter,
+      onDailyFilter: dailyTaskFilter,
+      filteredData,
+      dailyFilteredData,
+      handleLogout,
+    }),
+    [
+      normalTodos,
+      dailyTodos,
+      deleteTask,
+      editTask,
+      NormalTaskFilter,
+      dailyTaskFilter,
+      filteredData,
+      dailyFilteredData,
+      handleLogout,
+    ]
+  );
 
   const options = [
     "Daily",
@@ -315,7 +317,15 @@ export const Home = () => {
     "custom",
   ];
 
-  const weekDays = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  const weekDays = [
+    { value: "sun", label: "SU" },
+    { value: "mon", label: "MO" },
+    { value: "tue", label: "TU" },
+    { value: "wed", label: "WE" },
+    { value: "thu", label: "TH" },
+    { value: "fri", label: "FR" },
+    { value: "sat", label: "SA" },
+  ];
 
   const onChange = (e) => {
     const { value } = e.target;
@@ -327,10 +337,10 @@ export const Home = () => {
   };
 
   const durationTypes = [
-    { value: "day", label: "Daily" },
-    { value: "week", label: "Weekly" },
-    { value: "month", label: "Monthly" },
-    { value: "year", label: "Yearly" },
+    { value: "daily", label: "Daily" },
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "yearly", label: "Yearly" },
   ];
 
   const durationTypeSelect = <Select options={durationTypes} />;
@@ -346,7 +356,12 @@ export const Home = () => {
             menu={{
               items: [
                 {
-                  label: <p>Hello, {localStorage.getItem("name")}</p>,
+                  label: (
+                    <p>
+                      Hello,
+                      {localStorage.getItem("name")}
+                    </p>
+                  ),
                   style: { textAlign: "center", padding: "0" },
                   key: "0",
                 },
@@ -372,12 +387,15 @@ export const Home = () => {
             }}
             trigger={["click"]}
           >
-            <a onClick={(e) => e.preventDefault()}>
+            <Button
+              onClick={(e) => e.preventDefault()}
+              style={{ background: "transparent", border: "none" }}
+            >
               <Space style={{ color: "white" }}>
                 Profile
                 <DownOutlined />
               </Space>
-            </a>
+            </Button>
           </Dropdown>
         </Header>
       </Layout>
@@ -405,20 +423,20 @@ export const Home = () => {
           }}
           okButtonProps={{ style: { backgroundColor: "#8458B3" } }}
         >
-          <Form layout={"vertical"} form={form}>
+          <Form layout="vertical" form={form}>
             <Form.Item
               label="Title"
               name="title"
               id="title"
-              required={true}
+              required
               rules={[
                 {
                   required: true,
-                  message: `Please Enter valid Title`,
+                  message: "Please Enter valid Title",
                 },
               ]}
             >
-              <Input placeholder="Enter title" required={true} />
+              <Input placeholder="Enter title" required />
             </Form.Item>
             <Form.Item
               label="Description"
@@ -427,7 +445,7 @@ export const Home = () => {
               rules={[
                 {
                   required: true,
-                  message: `Please Enter valid Description`,
+                  message: "Please Enter valid Description",
                 },
               ]}
             >
@@ -444,80 +462,74 @@ export const Home = () => {
             </Form.Item>
 
             {defaultData === null && (
-              <>
-                <Form.Item
-                  id="radio"
-                  name="status"
-                  label="Select Task Type"
-                  required
-                >
-                  <Radio.Group>
-                    <Radio
-                      value="TODO"
-                      onClick={() => {
-                        setIsDaily(false);
-                      }}
-                    >
-                      Normal Task
-                    </Radio>
-                    <Radio
-                      value="IN-PROGRESS"
-                      onClick={() => {
-                        setIsDaily(true);
-                      }}
-                    >
-                      Daily Task
-                    </Radio>
-                  </Radio.Group>
-                </Form.Item>
-              </>
+              <Form.Item
+                id="radio"
+                name="status"
+                label="Select Task Type"
+                required
+              >
+                <Radio.Group>
+                  <Radio
+                    value="TODO"
+                    onClick={() => {
+                      setIsDaily(false);
+                    }}
+                  >
+                    Normal Task
+                  </Radio>
+                  <Radio
+                    value="IN-PROGRESS"
+                    onClick={() => {
+                      setIsDaily(true);
+                    }}
+                  >
+                    Daily Task
+                  </Radio>
+                </Radio.Group>
+              </Form.Item>
             )}
             {defaultData !== null && (
-              <>
-                <Form.Item
-                  id="radio"
-                  name="status"
-                  label="Select Task Type"
-                  required
-                >
-                  <Radio.Group>
-                    <Radio value="TODO">Todos</Radio>
-                    <Radio value="IN-PROGRESS">In-Progress</Radio>
-                    <Radio value="DONE">Mark as completed</Radio>
-                  </Radio.Group>
-                </Form.Item>
-              </>
+              <Form.Item
+                id="radio"
+                name="status"
+                label="Select Task Type"
+                required
+              >
+                <Radio.Group>
+                  <Radio value="TODO">Todos</Radio>
+                  <Radio value="IN-PROGRESS">In-Progress</Radio>
+                  <Radio value="DONE">Mark as completed</Radio>
+                </Radio.Group>
+              </Form.Item>
             )}
             {(isDaily ||
               (defaultData !== null &&
                 defaultData.task_frequency !== null)) && (
-              <>
-                <Form.Item
-                  name="task_frequency"
-                  label="Select Frequency"
-                  hasFeedback
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select your task type!",
-                    },
-                  ]}
+              <Form.Item
+                name="task_frequency"
+                label="Select Frequency"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select your task type!",
+                  },
+                ]}
+              >
+                <Select
+                  style={{ width: "40%" }}
+                  defaultValue="Select Task"
+                  onChange={(value) => {
+                    setIsOption(value);
+                  }}
                 >
-                  <Select
-                    style={{ width: "40%" }}
-                    defaultValue="Select Task"
-                    onChange={(value) => {
-                      setIsOption(value);
-                    }}
-                  >
-                    {options.map((option) => (
-                      <Option value={option} key={option}>
-                        {option}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </>
+                  {options.map((option) => (
+                    <Option value={option} key={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
             )}
 
             {isOption === "weekDays" && isDaily && (
@@ -527,10 +539,10 @@ export const Home = () => {
                     <Checkbox
                       style={{ margin: "1%" }}
                       onChange={onChange}
-                      value={checkbox}
-                      key={checkbox}
+                      value={checkbox.value}
+                      key={checkbox.value}
                     >
-                      {checkbox}
+                      {checkbox.label}
                     </Checkbox>
                   ))}
                 </Checkbox.Group>
@@ -543,36 +555,33 @@ export const Home = () => {
                   initialValue={[{ durationCount: "1", durationType: "Daily" }]}
                 >
                   {(list) =>
-                    list.map((item) => {
-                      return (
-                        <Form.Item
-                          key={item.key}
-                          {...item}
-                          name={[item.name, "durationCount"]}
-                          style={{ width: "30%" }}
-                          rules={[
-                            { required: true },
-                            {
-                              pattern: /^[1-9]\d{0,2}$/,
-                              message:
-                                "Please enter a number between 1 and 999",
-                            },
-                          ]}
-                        >
-                          <Input
-                            addonAfter={
-                              <Form.Item
-                                name={[item.name, "durationType"]}
-                                noStyle
-                                initialValue="Daily"
-                              >
-                                {durationTypeSelect}
-                              </Form.Item>
-                            }
-                          />
-                        </Form.Item>
-                      );
-                    })
+                    list.map((item) => (
+                      <Form.Item
+                        key={item.key}
+                        {...item}
+                        name={[item.name, "durationCount"]}
+                        style={{ width: "30%" }}
+                        rules={[
+                          { required: true },
+                          {
+                            pattern: /^[1-9]\d{0,2}$/,
+                            message: "Please enter a number between 1 and 999",
+                          },
+                        ]}
+                      >
+                        <Input
+                          addonAfter={
+                            <Form.Item
+                              name={[item.name, "durationType"]}
+                              noStyle
+                              initialValue="Daily"
+                            >
+                              {durationTypeSelect}
+                            </Form.Item>
+                          }
+                        />
+                      </Form.Item>
+                    ))
                   }
                 </Form.List>
               </div>
@@ -584,36 +593,33 @@ export const Home = () => {
                   initialValue={[{ durationCount: "1", durationType: "Daily" }]}
                 >
                   {(list) =>
-                    list.map((item) => {
-                      return (
-                        <Form.Item
-                          key={item.key}
-                          {...item}
-                          name={[item.name, "durationCount"]}
-                          style={{ width: "30%" }}
-                          rules={[
-                            { required: true },
-                            {
-                              pattern: /^[1-9]\d{0,2}$/,
-                              message:
-                                "Please enter a number between 1 and 999",
-                            },
-                          ]}
-                        >
-                          <Input
-                            addonAfter={
-                              <Form.Item
-                                name={[item.name, "durationType"]}
-                                noStyle
-                                initialValue="Daily"
-                              >
-                                {durationTypeSelect}
-                              </Form.Item>
-                            }
-                          />
-                        </Form.Item>
-                      );
-                    })
+                    list.map((item) => (
+                      <Form.Item
+                        key={item.key}
+                        {...item}
+                        name={[item.name, "durationCount"]}
+                        style={{ width: "30%" }}
+                        rules={[
+                          { required: true },
+                          {
+                            pattern: /^[1-9]\d{0,2}$/,
+                            message: "Please enter a number between 1 and 999",
+                          },
+                        ]}
+                      >
+                        <Input
+                          addonAfter={
+                            <Form.Item
+                              name={[item.name, "durationType"]}
+                              noStyle
+                              initialValue="Daily"
+                            >
+                              {durationTypeSelect}
+                            </Form.Item>
+                          }
+                        />
+                      </Form.Item>
+                    ))
                   }
                 </Form.List>
               </div>
@@ -646,4 +652,4 @@ export const Home = () => {
       ,
     </>
   );
-};
+}

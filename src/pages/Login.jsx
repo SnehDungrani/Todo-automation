@@ -2,13 +2,13 @@ import { Button, Card, Input, Form, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
+import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import GoogleButton from "react-google-button";
 import CONSTANTS from "../util/constant/CONSTANTS";
 
 import useHttp from "../Hooks/use-http";
 import { setAuthDetails } from "../util/API/authStorage";
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import app from "../util/firebase";
-import GoogleButton from "react-google-button";
 
 const Login = () => {
   const token = localStorage.getItem("token");
@@ -60,9 +60,9 @@ const Login = () => {
       });
   };
 
-  // if (token) {
-  //   return <Navigate to="/home" />;
-  // }
+  if (token) {
+    return <Navigate to="/home" />;
+  }
 
   const loginHandler = () => {
     form
@@ -80,7 +80,7 @@ const Login = () => {
               navigate("/home");
             }
 
-            // window.location.reload();
+            window.location.reload();
           },
           value,
           "Login Successfully"
@@ -177,7 +177,7 @@ const Login = () => {
             <br />
             <br />
             <div style={{ textAlign: "center", marginTop: "10px" }}>
-              Don't have an account?
+              Don&apos;t have an account?
               <br />
               <Button type="link" style={{ padding: 0 }}>
                 <Link to="/signup">SignUp</Link>

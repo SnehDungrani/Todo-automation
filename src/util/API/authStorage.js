@@ -9,4 +9,5 @@ export const setAuthDetails = (accessToken, userName) => {
 
 export const deleteAuthDetails = () => {
   localStorage.removeItem("token");
+  localStorage.removeItem("name");
 };

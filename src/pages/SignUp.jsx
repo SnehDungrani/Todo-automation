@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import { Button, Card, Input, Form, Checkbox, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
 import { SiGnuprivacyguard } from "react-icons/si";
