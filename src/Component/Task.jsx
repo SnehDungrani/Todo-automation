@@ -287,12 +287,12 @@ const Task = () => {
                         dangerouslySetInnerHTML={{ __html: item?.description }}
                       />
                       <i>
-                        Created At
+                        Created At&nbsp;
                         {item?.createdAt}
                       </i>
                       <br />
                       <i>
-                        Updated At
+                        Updated At&nbsp;
                         {item?.updatedAt}
                       </i>
                       <br />
