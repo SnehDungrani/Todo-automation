@@ -28,7 +28,7 @@ import dayjs from "dayjs";
 import moment from "moment";
 import useHttp from "../Hooks/use-http";
 import CONSTANTS from "../util/constant/CONSTANTS";
-import { apiGenerator } from "../util/functions";
+import apiGenerator from "../util/functions";
 import { deleteAuthDetails } from "../util/API/authStorage";
 import Task from "./Task";
 import { TaskContext } from "../store/task-context";
