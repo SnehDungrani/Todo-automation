@@ -7,13 +7,14 @@ import {
 import { Spin, Alert, Avatar, Button, List, Popconfirm, Checkbox } from "antd";
 import { GrDatabase } from "react-icons/gr";
 import Badge from "./Badge";
-import { apiGenerator } from "../util/functions";
 import CONSTANTS from "../util/constant/CONSTANTS";
 import useHttp from "../Hooks/use-http";
 import { TaskContext } from "../store/task-context";
+import apiGenerator from "../util/functions";
 
 const Task = () => {
   const [selectedType, setSelectedType] = useState("");
+  const [subSelectedType, setSubSelectedType] = useState("");
   const [filteredTask, setFilteredTask] = useState([]);
   const [loading, setLoading] = useState(false);
   const [multipleId, setMultipleId] = useState([]);
@@ -134,20 +135,28 @@ const Task = () => {
     }, 1700);
     if (isSelectedButton === "TODO") {
       onFilter("TODO");
+      setSubSelectedType("TODO");
     } else if (isSelectedButton === "IN-PROGRESS") {
       onFilter("IN-PROGRESS");
+      setSubSelectedType("IN-PROGRESS");
     } else if (isSelectedButton === "DONE") {
       onFilter("DONE");
+      setSubSelectedType("DONE");
     } else if (isSelectedButton === "Daily") {
       onDailyFilter("Daily");
+      setSubSelectedType("Daily");
     } else if (isSelectedButton === "weekly") {
       onDailyFilter("weekly");
+      setSubSelectedType("weekly");
     } else if (isSelectedButton === "monthly") {
       onDailyFilter("monthly");
+      setSubSelectedType("monthly");
     } else if (isSelectedButton === "Quarterly") {
       onDailyFilter("Quarterly");
+      setSubSelectedType("Quarterly");
     } else if (isSelectedButton === "yearly") {
       onDailyFilter("yearly");
+      setSubSelectedType("yearly");
     }
   };
 
@@ -155,11 +164,21 @@ const Task = () => {
     <>
       <menu id="tabs">
         <li>
-          <Button onClick={() => setSelectedType("NORMAL")}>Normal Task</Button>
+          <Button
+            onClick={() => setSelectedType("NORMAL")}
+            className={selectedType === "NORMAL" ? "active" : ""}
+          >
+            Normal Task
+          </Button>
           <Badge caption={nTasks.length} />
         </li>
         <li>
-          <Button onClick={() => setSelectedType("DAILY")}>Daily Task</Button>
+          <Button
+            onClick={() => setSelectedType("DAILY")}
+            className={selectedType === "DAILY" ? "active" : ""}
+          >
+            Daily Task
+          </Button>
           <Badge caption={dTasks.length} />
         </li>
       </menu>
@@ -167,16 +186,32 @@ const Task = () => {
       <menu id="subtabs">
         {selectedType === "NORMAL" && (
           <>
-            <Button type="dashed" onClick={normalTaskHandler}>
+            <Button
+              type="dashed"
+              onClick={normalTaskHandler}
+              className={subSelectedType === "" ? "active" : ""}
+            >
               All
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("TODO")}>
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("TODO")}
+              className={subSelectedType === "TODO" ? "active" : ""}
+            >
               To-Do
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("IN-PROGRESS")}>
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("IN-PROGRESS")}
+              className={subSelectedType === "IN-PROGRESS" ? "active" : ""}
+            >
               In-Progress
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("DONE")}>
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("DONE")}
+              className={subSelectedType === "DONE" ? "active" : ""}
+            >
               Completed
             </Button>
             <Button
@@ -195,30 +230,52 @@ const Task = () => {
         )}
         {selectedType !== "NORMAL" && (
           <>
-            <Button type="dashed" onClick={dailyTaskHandler}>
+            <Button
+              type="dashed"
+              onClick={dailyTaskHandler}
+              className={subSelectedType === "" ? "active" : ""}
+            >
               All
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("Daily")}>
+
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("Daily")}
+              className={subSelectedType === "Daily" ? "active" : ""}
+            >
               Daily
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("weekly")}>
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("weekly")}
+              className={subSelectedType === "weekly" ? "active" : ""}
+            >
               Weekly
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("monthly")}>
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("monthly")}
+              className={subSelectedType === "monthly" ? "active" : ""}
+            >
               Monthly
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("Quarterly")}>
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("Quarterly")}
+              className={subSelectedType === "Quarterly" ? "active" : ""}
+            >
               Quarterly
             </Button>
-            <Button type="dashed" onClick={() => onClickHandler("yearly")}>
+            <Button
+              type="dashed"
+              onClick={() => onClickHandler("yearly")}
+              className={subSelectedType === "yearly" ? "active" : ""}
+            >
               Yearly
             </Button>
             <Button
               type="default"
               onClick={() => {
-                // setTimeout(() => {
-                //   setLoading(false);
-                // }, 2000);
                 multipleDeleteHandler();
               }}
               disabled={isSelect === false}

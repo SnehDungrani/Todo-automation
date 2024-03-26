@@ -131,6 +131,14 @@ span .ant-select-selection-item {
   max-width: 720px;
 }
 
+#tabs .active {
+  text-decoration: underline;
+}
+
+#subtabs .active {
+  background-color: #8458b32a;
+}
+
 
 @media screen and (max-width: 430px) {
   .container {
