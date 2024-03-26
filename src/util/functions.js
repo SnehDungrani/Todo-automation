@@ -1,4 +1,8 @@
-export const apiGenerator = (apiObject, exchangePair = {}, join = null) => {
+export default function apiGenerator(
+  apiObject,
+  exchangePair = {},
+  join = null
+) {
   const apiObj = { ...apiObject };
   console.log(exchangePair);
   if (Object.keys(exchangePair).length) {
@@ -11,4 +15,4 @@ export const apiGenerator = (apiObject, exchangePair = {}, join = null) => {
     apiObj.endpoint = `${apiObj.endpoint}${join}`;
   }
   return apiObj;
-};
+}
