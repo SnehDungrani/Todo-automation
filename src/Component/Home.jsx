@@ -31,7 +31,7 @@ import CONSTANTS from "../util/constant/CONSTANTS";
 import apiGenerator from "../util/functions";
 import { deleteAuthDetails } from "../util/API/authStorage";
 import Task from "./Task";
-import { TaskContext } from "../store/task-context";
+import TaskContext from "../store/task-context";
 
 const headerStyle = {
   textAlign: "right",
@@ -72,6 +72,7 @@ export default function Home() {
   const [dailyFilteredData, setDailyFilteredData] = useState([]);
   const [isOption, setIsOption] = useState("");
   const [selectedValue, setSelectedValue] = useState([]);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -79,36 +80,20 @@ export default function Home() {
   const API = useHttp();
 
   useEffect(() => {
-    const fetchTask = async () => {
+    const fetchTask = async (apiEndpoint, setTodos) => {
       try {
         setIsLoading((pr) => !pr);
-        await API.sendRequest(CONSTANTS.API.todo.get, (res) => {
+        await API.sendRequest(apiEndpoint, (res) => {
           setIsLoading((pr) => !pr);
-          setNormalTodos(res.data);
+          setTodos(res.data);
         });
       } catch (error) {
         console.log(error.message);
       }
     };
 
-    fetchTask();
-  }, [refresh, tempId]);
-
-  useEffect(() => {
-    const fetchTask = async () => {
-      try {
-        setIsLoading((pr) => !pr);
-
-        await API.sendRequest(CONSTANTS.API.repeatTodo.get, (res) => {
-          setIsLoading((pr) => !pr);
-          setDailyTodos(res.data);
-        });
-      } catch (error) {
-        console.log(error.message);
-      }
-    };
-
-    fetchTask();
+    fetchTask(CONSTANTS.API.todo.get, setNormalTodos);
+    fetchTask(CONSTANTS.API.repeatTodo.get, setDailyTodos);
   }, [refresh, tempId]);
 
   useEffect(() => {
@@ -216,6 +201,7 @@ export default function Home() {
     form.setFieldsValue(initialValues);
     setDefaultDataSet(item);
     setTempId(item.id);
+    setIsDisabled((pr) => !pr);
   };
 
   const deleteTask = async (item, selectedType) => {
@@ -288,6 +274,34 @@ export default function Home() {
     }
   };
 
+  const options = [
+    { value: "daily", label: "Daily" },
+    { value: "weekDays", label: "Weekdays" },
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "quarterly", label: "Quarterly" },
+    { value: "yearly", label: "Yearly" },
+  ];
+
+  const weekDays = [
+    { value: "sun", label: "SU" },
+    { value: "mon", label: "MO" },
+    { value: "tue", label: "TU" },
+    { value: "wed", label: "WE" },
+    { value: "thu", label: "TH" },
+    { value: "fri", label: "FR" },
+    { value: "sat", label: "SA" },
+  ];
+
+  const onChange = (e) => {
+    const { value } = e.target;
+    const isChecked = e.target.checked;
+
+    isChecked
+      ? setSelectedValue([...selectedValue, value])
+      : setSelectedValue(selectedValue.filter((day) => day !== value));
+  };
+
   const tsxValue = useMemo(
     () => ({
       nTasks: normalTodos,
@@ -312,44 +326,6 @@ export default function Home() {
       handleLogout,
     ]
   );
-
-  const options = [
-    "Daily",
-    "weekDays",
-    "weekly",
-    "monthly",
-    "Quarterly",
-    "yearly",
-    "custom",
-  ];
-
-  const weekDays = [
-    { value: "sun", label: "SU" },
-    { value: "mon", label: "MO" },
-    { value: "tue", label: "TU" },
-    { value: "wed", label: "WE" },
-    { value: "thu", label: "TH" },
-    { value: "fri", label: "FR" },
-    { value: "sat", label: "SA" },
-  ];
-
-  const onChange = (e) => {
-    const { value } = e.target;
-    const isChecked = e.target.checked;
-
-    isChecked
-      ? setSelectedValue([...selectedValue, value])
-      : setSelectedValue(selectedValue.filter((day) => day !== value));
-  };
-
-  const durationTypes = [
-    { value: "daily", label: "Daily" },
-    { value: "weekly", label: "Weekly" },
-    { value: "monthly", label: "Monthly" },
-    { value: "yearly", label: "Yearly" },
-  ];
-
-  const durationTypeSelect = <Select options={durationTypes} />;
 
   return (
     <>
@@ -534,14 +510,25 @@ export default function Home() {
                     setIsOption(value);
                   }}
                 >
-                  {options.map((option) => (
-                    <Option value={option} key={option}>
-                      {option}
-                    </Option>
-                  ))}
+                  {isDisabled
+                    ? options.map((option) => (
+                        <Option
+                          value={option.value}
+                          key={option.value}
+                          disabled
+                        >
+                          {option.label}
+                        </Option>
+                      ))
+                    : options.map((option) => (
+                        <Option value={option.value} key={option.value}>
+                          {option.label}
+                        </Option>
+                      ))}
                 </Select>
               </Form.Item>
             )}
+
             {isOption === "weekDays" && (
               <Form.Item name="selectedDays">
                 <Checkbox.Group>
@@ -557,44 +544,6 @@ export default function Home() {
                   ))}
                 </Checkbox.Group>
               </Form.Item>
-            )}
-            {isOption === "custom" && (
-              <div className="custom">
-                <Form.List
-                  name={["duration"]}
-                  initialValue={[{ durationCount: "1", durationType: "Daily" }]}
-                >
-                  {(list) =>
-                    list.map((item) => (
-                      <Form.Item
-                        key={item.key}
-                        {...item}
-                        name={[item.name, "durationCount"]}
-                        style={{ width: "30%" }}
-                        rules={[
-                          { required: true },
-                          {
-                            pattern: /^[1-9]\d{0,2}$/,
-                            message: "Please enter a number between 1 and 999",
-                          },
-                        ]}
-                      >
-                        <Input
-                          addonAfter={
-                            <Form.Item
-                              name={[item.name, "durationType"]}
-                              noStyle
-                              initialValue="Daily"
-                            >
-                              {durationTypeSelect}
-                            </Form.Item>
-                          }
-                        />
-                      </Form.Item>
-                    ))
-                  }
-                </Form.List>
-              </div>
             )}
           </Form>
         </Modal>

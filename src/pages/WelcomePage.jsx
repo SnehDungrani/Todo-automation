@@ -1,4 +1,4 @@
-import React from "react";
+/* eslint-disable jsx-a11y/media-has-caption */
 import { Button, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import video1 from "./video/todo.mp4";
@@ -36,7 +36,7 @@ const WelcomePage = () => {
           src={video1}
           loop
           autoPlay
-        ></video>
+        />
       </div>
     </>
   );

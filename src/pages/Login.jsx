@@ -1,6 +1,6 @@
 import { Button, Card, Input, Form, Spin } from "antd";
 import { LoginOutlined, UserOutlined } from "@ant-design/icons";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SiGnuprivacyguard } from "react-icons/si";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import GoogleButton from "react-google-button";
@@ -11,7 +11,7 @@ import { setAuthDetails } from "../util/API/authStorage";
 import app from "../util/firebase";
 
 const Login = () => {
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -60,9 +60,9 @@ const Login = () => {
       });
   };
 
-  if (token) {
-    return <Navigate to="/home" />;
-  }
+  // if (token) {
+  //   return <Navigate to="/home" />;
+  // }
 
   const loginHandler = () => {
     form

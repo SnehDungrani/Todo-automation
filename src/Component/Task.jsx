@@ -9,8 +9,8 @@ import { GrDatabase } from "react-icons/gr";
 import Badge from "./Badge";
 import CONSTANTS from "../util/constant/CONSTANTS";
 import useHttp from "../Hooks/use-http";
-import { TaskContext } from "../store/task-context";
 import apiGenerator from "../util/functions";
+import TaskContext from "../store/task-context";
 
 const Task = () => {
   const [selectedType, setSelectedType] = useState("");
@@ -63,11 +63,14 @@ const Task = () => {
 
   const normalTaskHandler = () => {
     setSelectedType("NORMAL");
+    setSubSelectedType("NALL");
     setFilteredTask(normalTask);
   };
 
   const dailyTaskHandler = () => {
     setSelectedType("DAILY");
+    setSubSelectedType("DALL");
+
     setFilteredTask(allDailyTasks);
   };
 
@@ -189,7 +192,7 @@ const Task = () => {
             <Button
               type="dashed"
               onClick={normalTaskHandler}
-              className={subSelectedType === "" ? "active" : ""}
+              className={subSelectedType === "NALL" ? "active" : ""}
             >
               All
             </Button>
@@ -233,7 +236,7 @@ const Task = () => {
             <Button
               type="dashed"
               onClick={dailyTaskHandler}
-              className={subSelectedType === "" ? "active" : ""}
+              className={subSelectedType === "DALL" ? "active" : ""}
             >
               All
             </Button>

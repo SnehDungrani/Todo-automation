@@ -12,7 +12,7 @@ const SignUp = () => {
 
   const API = useHttp();
 
-  const loginHandler = () => {
+  const signUpHandler = () => {
     form
       .validateFields()
       .then(async (value) => {
@@ -28,14 +28,17 @@ const SignUp = () => {
           CONSTANTS.API.auth.signup,
           (res) => {
             console.log(res);
+            // notification.success({
+            //   message: "Signup Successful",
+            //   description: "You have successfully signed up.",
+            // });
+            setTimeout(() => {
+              navigate("/login");
+            }, 1500);
           },
           userDetail,
           "Signup Successfully"
         );
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 3000);
       })
       .catch((err) => {
         console.log(err);
@@ -139,7 +142,7 @@ const SignUp = () => {
                 type="primary"
                 shape="round"
                 icon={<LoginOutlined />}
-                onClick={loginHandler}
+                onClick={signUpHandler}
                 htmlType="submit"
               >
                 Sign Up

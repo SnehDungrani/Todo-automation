@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { TaskContext } from "../store/task-context";
 import Home from "../Component/Home";
+import TaskContext from "../store/task-context";
 
 const Protected = () => {
   const { logOut } = useContext(TaskContext);

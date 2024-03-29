@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-export const TaskContext = createContext({
+const TaskContext = createContext({
   nTasks: {},
   dTasks: {},
   onDelete: {},
@@ -10,3 +10,5 @@ export const TaskContext = createContext({
   filteredData: {},
   dailyFilteredData: {},
 });
+
+export default TaskContext;
